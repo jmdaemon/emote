@@ -1,20 +1,6 @@
-#!/usr/bin/python3.9
+#!/usr/bin/python
 
 import click
-
-# Possible solutions
-# Command Callbacks
-#   - Callbacks must pass in the text parameter
-#   - cli() must have a default text param
-
-# Dispatched/Decorated commands
-#   - Results in a lot of boilerplate code
-#   - cli() must have a default text param
-
-# Best solution:
-# cli() has *args, **kwargs list
-#   - Params are selected via match case statement
-#   - Output is printed at the end
 
 # Bold
 boldCharMap = {"0":"𝟎","1":"𝟏","2":"𝟐","3":"𝟑","4":"𝟒","5":"𝟓","6":"𝟔","7":"𝟕","8":"𝟖","9":"𝟗","a":"𝐚","b":"𝐛","c":"𝐜","d":"𝐝","e":"𝐞","f":"𝐟","g":"𝐠","h":"𝐡","i":"𝐢","j":"𝐣","k":"𝐤","l":"𝐥","m":"𝐦","n":"𝐧","o":"𝐨","p":"𝐩","q":"𝐪","r":"𝐫","s":"𝐬","t":"𝐭","u":"𝐮","v":"𝐯","w":"𝐰","x":"𝐱","y":"𝐲","z":"𝐳","A":"𝐀","B":"𝐁","C":"𝐂","D":"𝐃","E":"𝐄","F":"𝐅","G":"𝐆","H":"𝐇","I":"𝐈","J":"𝐉","K":"𝐊","L":"𝐋","M":"𝐌","N":"𝐍","O":"𝐎","P":"𝐏","Q":"𝐐","R":"𝐑","S":"𝐒","T":"𝐓","U":"𝐔","V":"𝐕","W":"𝐖","X":"𝐗","Y":"𝐘","Z":"𝐙"}
@@ -50,115 +36,64 @@ medievalCharMap = {"0":"0","1":"1","2":"2","3":"3","4":"4","5":"5","6":"6","7":"
 monospaceCharMap = {"0":"𝟶","1":"𝟷","2":"𝟸","3":"𝟹","4":"𝟺","5":"𝟻","6":"𝟼","7":"𝟽","8":"𝟾","9":"𝟿","a":"𝚊","b":"𝚋","c":"𝚌","d":"𝚍","e":"𝚎","f":"𝚏","g":"𝚐","h":"𝚑","i":"𝚒","j":"𝚓","k":"𝚔","l":"𝚕","m":"𝚖","n":"𝚗","o":"𝚘","p":"𝚙","q":"𝚚","r":"𝚛","s":"𝚜","t":"𝚝","u":"𝚞","v":"𝚟","w":"𝚠","x":"𝚡","y":"𝚢","z":"𝚣","A":"𝙰","B":"𝙱","C":"𝙲","D":"𝙳","E":"𝙴","F":"𝙵","G":"𝙶","H":"𝙷","I":"𝙸","J":"𝙹","K":"𝙺","L":"𝙻","M":"𝙼","N":"𝙽","O":"𝙾","P":"𝙿","Q":"𝚀","R":"𝚁","S":"𝚂","T":"𝚃","U":"𝚄","V":"𝚅","W":"𝚆","X":"𝚇","Y":"𝚈","Z":"𝚉"}
 
 
-
-
-
 CONTEXT_SETTINGS = dict(help_option_names=['-h', '--help'])
 
 @click.option('-V'   , '--version'      , 'version'     , help='Show program version'           , is_flag=True, default=False)
 @click.option('-v'   , '--verbose'      , 'verbose'     , help='Display verbose output'         , is_flag=True, default=False)
 @click.option('-b'   , '--bold'         , 'bold'        , help='Make bold text'                 , is_flag=True, default=False)
 @click.option('-s'   , '--sans'         , 'sans'        , help='Use sans-serif characters'      , is_flag=True, default=False)
-# @click.option('--sub'                   , 'sub'         , help='Convert to subscripts'          , is_flag=True, default=False)
-# @click.option('--super'                 , 'sup'         , help='Convert to superscripts'        , is_flag=True, default=False)
+@click.option('--sub'                   , 'sub'         , help='Convert to subscripts'          , is_flag=True, default=False)
+@click.option('--super'                 , 'sup'         , help='Convert to superscripts'        , is_flag=True, default=False)
 @click.option('-i'   , '--italics'      , 'italic'      , help='Italicize text'                 , is_flag=True, default=False)
-# @click.option('-ds'  , '--doublestruck' , 'ds'          , help='Convert to doublestruck'        , is_flag=True, default=False)
-# @click.option('-oe'  , '--oldeng'       , 'oldeng'      , help='Convert to Old English'         , is_flag=True, default=False)
-# @click.option('-med' , '--medieval'     , 'med'         , help='Use Medieval characters'        , is_flag=True, default=False)
-# @click.option('-mono', '--monospace'    , 'mono'        , help='Use Monospace characters'       , is_flag=True, default=False)
+@click.option('-ds'  , '--doublestruck' , 'ds'          , help='Convert to doublestruck'        , is_flag=True, default=False)
+@click.option('-oe'  , '--oldeng'       , 'oldeng'      , help='Convert to Old English'         , is_flag=True, default=False)
+@click.option('-med' , '--medieval'     , 'med'         , help='Use Medieval characters'        , is_flag=True, default=False)
+@click.option('-mono', '--monospace'    , 'mono'        , help='Use Monospace characters'       , is_flag=True, default=False)
 @click.option('-st'  , '--strike'       , 'strike'      , help='Strike through text'            , type=click.Choice(['-', '~']))
-# @click.option('-st'  , '--strike'       , 'strike'      , help='Strike through text. Different delimeters can be specified',
-# @click.option('-std' , '--striketilde'  , 'striketilde' , help='Strike through text with tildes', is_flag=True, default=False)
-# @click.command(options_metavar='[options]', context_settings=CONTEXT_SETTINGS)
-@click.option('-m'  , '--char-map'       , 'charmap'    , help='Strike through text'            , type=click.Choice(['-', '~']))
-@click.group(options_metavar='[options]', context_settings=CONTEXT_SETTINGS)
-# @click.argument('text', metavar='<text>', required=False)
-@click.pass_context
-def cli(ctx, version, verbose,
-        bold, sans,
-        # bold, sans, sub,
-        # bold, sans, sub, sup,
-        # italic, ds, oldeng, med, mono,
-        # italic, ds, oldeng, mono,
-        # italic, ds, oldeng,
-        # italic, ds,
-        italic,
-        # strike, striketilde, text):
-         # text, strike='-'):
-        strike='-'):
+@click.option('-m'  , '--char-map'       , 'charmap'    , metavar='<path>', help='Use a custom character mapping', default=False)
+@click.command(options_metavar='[options]', context_settings=CONTEXT_SETTINGS)
+@click.argument('text', metavar='<text>', required=False)
+def cli(version, verbose, bold,
+        sans, sub, sup, italic,
+        ds, oldeng, med, mono,
+        strike, charmap, text=''):
     """ strmanip transforms strings of text, formatting them in various ways.  """
     if (version):
         MAJOR, MINOR, PATCH = '0', '1', '0'
         print(f'strmanip - v{MAJOR}.{MINOR}.{PATCH}')
         return
-    # if not text:
-        # return
-    # out = ""
-    # if (bold and sans):
-        # out = convert(boldSansCharMap, text)
-    # elif(bold):
-        # out = convert(boldCharMap, text)
-    # if (sub):
-        # out = convert(subscriptCharMap, text)
-    # elif (sup):
-        # out = convert(superscriptCharMap, text)
-    # if (italic and bold):
-        # out = convert(boldItalicCharMap, text)
-    # if (italic and sans):
-        # out = convert(boldItalicSansCharMap, text)
-    # if (italic and not sans and not bold):
-        # out = convert(italicCharMap, text)
-    # if (ds):
-        # out = convert(doubleStruckCharMap, text)
-    # if (oldeng):
-        # out = convert(oldEnglishCharMap, text)
-    # if (med):
-        # out = convert(medievalCharMap, text)
-    # if (mono):
-        # out = convert(monospaceCharMap, text)
-    # if (strike == '-'):
-        # out = strikethrough(text, u'\u0336')
-    # elif (strike == '~'):
-        # out = strikethrough(text, u'\u0334')
-    # # if (strike):
-        # # out = strikethrough(text, u'\u0336')
-    # # if (striketilde):
-        # # out = strikethrough(text, u'\u0334')
-    # print(out)
+    if not text:
+        return
+    out = ""
+    if (bold and sans):
+        out = convert(boldSansCharMap, text)
+    elif(bold):
+        out = convert(boldCharMap, text)
+    if (sub):
+        out = convert(subscriptCharMap, text)
+    elif (sup):
+        out = convert(superscriptCharMap, text)
+    if (italic and bold):
+        out = convert(boldItalicCharMap, text)
+    if (italic and sans):
+        out = convert(boldItalicSansCharMap, text)
+    if (italic and not sans and not bold):
+        out = convert(italicCharMap, text)
+    if (ds):
+        out = convert(doubleStruckCharMap, text)
+    if (oldeng):
+        out = convert(oldEnglishCharMap, text)
+    if (med):
+        out = convert(medievalCharMap, text)
+    if (mono):
+        out = convert(monospaceCharMap, text)
+    if (strike == '-'):
+        out = strikethrough(text, u'\u0336')
+    elif (strike == '~'):
+        out = strikethrough(text, u'\u0334')
+    print(out)
 
-
-@cli.command(help='Use Medieval characters')
-@click.argument('text', metavar='<text>', required=True)
-def med(text):
-    print(convert(medievalCharMap, text))
-
-@cli.command(help='Use Monospace characters')
-@click.argument('text', metavar='<text>', required=True)
-def mono(text):
-        print(convert(monospaceCharMap, text))
-
-@cli.command(help='Use Old English characters')
-@click.argument('text', metavar='<text>', required=True)
-def oldeng(text):
-        print(convert(oldEnglishCharMap, text))
-
-@cli.command(help='Use Doublestruck/Blackboard Bold characters')
-@click.argument('text', metavar='<text>', required=True)
-def ds(text):
-        print(convert(doubleStruckCharMap, text))
-
-@cli.command(help='Use superscript characters')
-@click.argument('text', metavar='<text>', required=True)
-def sup(text):
-        print(convert(superscriptCharMap, text))
-
-@cli.command(help='Use subscript characters')
-@click.argument('text', metavar='<text>', required=True)
-def sub(text):
-        print(convert(subscriptCharMap, text))
-
-
-def convert(ctx, char_map, text):
+def convert(char_map, text):
     out = ""
     for char in text:
         if char in char_map:
@@ -172,6 +107,3 @@ def convert(ctx, char_map, text):
 
 def strikethrough(text, strikeover):
     return ''.join([char + strikeover for char in text])
-
-# if __name__ == '__main__':
-    # cli()
