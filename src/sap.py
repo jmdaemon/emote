@@ -173,5 +173,5 @@ def convert(ctx, char_map, text):
 def strikethrough(text, strikeover):
     return ''.join([char + strikeover for char in text])
 
-if __name__ == '__main__':
-    cli()
+# if __name__ == '__main__':
+    # cli()
