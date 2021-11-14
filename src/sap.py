@@ -1,6 +1,9 @@
 #!/usr/bin/python
 
-import click
+import sys
+import argparse
+from signal import signal, SIGPIPE, SIG_DFL
+signal(SIGPIPE, SIG_DFL)
 
 # Bold
 boldCharMap = {"0":"𝟎","1":"𝟏","2":"𝟐","3":"𝟑","4":"𝟒","5":"𝟓","6":"𝟔","7":"𝟕","8":"𝟖","9":"𝟗","a":"𝐚","b":"𝐛","c":"𝐜","d":"𝐝","e":"𝐞","f":"𝐟","g":"𝐠","h":"𝐡","i":"𝐢","j":"𝐣","k":"𝐤","l":"𝐥","m":"𝐦","n":"𝐧","o":"𝐨","p":"𝐩","q":"𝐪","r":"𝐫","s":"𝐬","t":"𝐭","u":"𝐮","v":"𝐯","w":"𝐰","x":"𝐱","y":"𝐲","z":"𝐳","A":"𝐀","B":"𝐁","C":"𝐂","D":"𝐃","E":"𝐄","F":"𝐅","G":"𝐆","H":"𝐇","I":"𝐈","J":"𝐉","K":"𝐊","L":"𝐋","M":"𝐌","N":"𝐍","O":"𝐎","P":"𝐏","Q":"𝐐","R":"𝐑","S":"𝐒","T":"𝐓","U":"𝐔","V":"𝐕","W":"𝐖","X":"𝐗","Y":"𝐘","Z":"𝐙"}
@@ -35,35 +38,61 @@ medievalCharMap = {"0":"0","1":"1","2":"2","3":"3","4":"4","5":"5","6":"6","7":"
 # Misc
 monospaceCharMap = {"0":"𝟶","1":"𝟷","2":"𝟸","3":"𝟹","4":"𝟺","5":"𝟻","6":"𝟼","7":"𝟽","8":"𝟾","9":"𝟿","a":"𝚊","b":"𝚋","c":"𝚌","d":"𝚍","e":"𝚎","f":"𝚏","g":"𝚐","h":"𝚑","i":"𝚒","j":"𝚓","k":"𝚔","l":"𝚕","m":"𝚖","n":"𝚗","o":"𝚘","p":"𝚙","q":"𝚚","r":"𝚛","s":"𝚜","t":"𝚝","u":"𝚞","v":"𝚟","w":"𝚠","x":"𝚡","y":"𝚢","z":"𝚣","A":"𝙰","B":"𝙱","C":"𝙲","D":"𝙳","E":"𝙴","F":"𝙵","G":"𝙶","H":"𝙷","I":"𝙸","J":"𝙹","K":"𝙺","L":"𝙻","M":"𝙼","N":"𝙽","O":"𝙾","P":"𝙿","Q":"𝚀","R":"𝚁","S":"𝚂","T":"𝚃","U":"𝚄","V":"𝚅","W":"𝚆","X":"𝚇","Y":"𝚈","Z":"𝚉"}
 
+def convert(char_map, text):
+    out = ""
+    for char in text:
+        if char in char_map:
+            out += char_map[char]
+        elif char.lower() in char_map:
+            out += char_map[char.lower()]
+        else:
+            out += char
+    return out
 
-CONTEXT_SETTINGS = dict(help_option_names=['-h', '--help'])
+def strikethrough(text, strikeover):
+    return ''.join([char + strikeover for char in text])
 
-@click.option('-V'   , '--version'      , 'version'     , help='Show program version'           , is_flag=True, default=False)
-@click.option('-v'   , '--verbose'      , 'verbose'     , help='Display verbose output'         , is_flag=True, default=False)
-@click.option('-b'   , '--bold'         , 'bold'        , help='Make bold text'                 , is_flag=True, default=False)
-@click.option('-s'   , '--sans'         , 'sans'        , help='Use sans-serif characters'      , is_flag=True, default=False)
-@click.option('--sub'                   , 'sub'         , help='Convert to subscripts'          , is_flag=True, default=False)
-@click.option('--super'                 , 'sup'         , help='Convert to superscripts'        , is_flag=True, default=False)
-@click.option('-i'   , '--italics'      , 'italic'      , help='Italicize text'                 , is_flag=True, default=False)
-@click.option('-ds'  , '--doublestruck' , 'ds'          , help='Convert to doublestruck'        , is_flag=True, default=False)
-@click.option('-oe'  , '--oldeng'       , 'oldeng'      , help='Convert to Old English'         , is_flag=True, default=False)
-@click.option('-med' , '--medieval'     , 'med'         , help='Use Medieval characters'        , is_flag=True, default=False)
-@click.option('-mono', '--monospace'    , 'mono'        , help='Use Monospace characters'       , is_flag=True, default=False)
-@click.option('-st'  , '--strike'       , 'strike'      , help='Strike through text'            , type=click.Choice(['-', '~']))
-@click.option('-m'  , '--char-map'       , 'charmap'    , metavar='<path>', help='Use a custom character mapping', default=False)
-@click.command(options_metavar='[options]', context_settings=CONTEXT_SETTINGS)
-@click.argument('text', metavar='<text>', required=False)
-def cli(version, verbose, bold,
-        sans, sub, sup, italic,
-        ds, oldeng, med, mono,
-        strike, charmap, text=''):
-    """ strmanip transforms strings of text, formatting them in various ways.  """
-    if (version):
+def main():
+    parser = argparse.ArgumentParser(description='Apply string manipulations on text')
+    parser.add_argument('-V'   , '--version'        , help='Show program version'       , action="store_true")
+    parser.add_argument('-v'   , '--verbose'        , help='Display verbose output'     , action="store_true")
+    parser.add_argument('-b'   , '--bold'           , help='Make bold text'             , action="store_true")
+    parser.add_argument('-s'   , '--sans'           , help='Use sans-serif characters'  , action="store_true")
+    parser.add_argument('--sub'                     , help='Convert to subscripts'      , action="store_true")
+    parser.add_argument('--super'                   , help='Convert to superscripts'    , action="store_true")
+    parser.add_argument('-i'   , '--italics'        , help='Italicize text'             , action="store_true")
+    parser.add_argument('-ds'  , '--doublestruck'   , help='Convert to doublestruck'    , action="store_true")
+    parser.add_argument('-oe'  , '--oldeng'         , help='Convert to Old English'     , action="store_true")
+    parser.add_argument('-med' , '--medieval'       , help='Use Medieval characters'    , action="store_true")
+    parser.add_argument('-mono', '--monospace'      , help='Use Monospace characters'   , action="store_true")
+    parser.add_argument('-st'  , '--strike'         , help='Strike through text'        , type=str, default='-')
+    parser.add_argument('-m'  , '--char-map'        , metavar='<path>', help='Use a custom character mapping', type=str)
+    parser.add_argument('text', metavar='<text>'    , type=str)
+
+    args = parser.parse_args()
+
+    vers = args.version
+    verb = args.verbose
+    bold = args.bold
+    sans = args.sans
+    sub = args.sub
+    sup = args.sub
+    italic = args.italics
+    ds = args.doublestruck
+    oldeng = args.oldeng
+    med = args.medieval
+    mono = args.monospace
+    strike = args.strike
+    cmap = args.char_map
+    text = args.text if args.text else ''
+
+    if (vers):
         MAJOR, MINOR, PATCH = '0', '1', '0'
         print(f'strmanip - v{MAJOR}.{MINOR}.{PATCH}')
-        return
+        sys.exit()
     if not text:
-        return
+        sys.exit()
+
     out = ""
     if (bold and sans):
         out = convert(boldSansCharMap, text)
@@ -92,18 +121,3 @@ def cli(version, verbose, bold,
     elif (strike == '~'):
         out = strikethrough(text, u'\u0334')
     print(out)
-
-def convert(char_map, text):
-    out = ""
-    for char in text:
-        if char in char_map:
-            out += char_map[char]
-        elif char.lower() in char_map:
-            out += char_map[char.lower()]
-        else:
-            out += char
-    return out
-
-
-def strikethrough(text, strikeover):
-    return ''.join([char + strikeover for char in text])
