@@ -34,11 +34,13 @@ class ArgParser(argparse.ArgumentParser):
 
 def main():
     parser = ArgParser(description='Apply string manipulations on text')
-    parser.add_argument('-v', '--version', action='version', version=f'%(prog)s - v{MAJOR}.{MINOR}.{PATCH}')
+    parser.add_argument('-v', '--version', action='version', version=f'%(prog)s - v{MAJOR}.{MINOR}.{PATCH}', help='Show program version')
+    parser.add_argument('-V', '--verbose', action='store_true')
     parser.add_argument('text', metavar='<text>', help='The text input', type=str)
     parser.add_argument('effects', help='Apply string manipulation', nargs=argparse.REMAINDER)
 
     args = parser.parse_args()
+    ver = args.verbose
     text = str(args.text)
     effects = args.effects
 
