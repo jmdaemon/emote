@@ -25,11 +25,11 @@ setuptools.setup(
     python_requires=">=3.6",
     py_modules=['sap'],
     install_requires=[
-        'Click',
+        'argparse',
     ],
     entry_points={
         'console_scripts': [
-            'sap = sap:cli',
+            'sap = sap:main',
         ],
     },
 
