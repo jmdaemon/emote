@@ -52,53 +52,10 @@ def convert(char_map, text):
 def strikethrough(text, strikeover):
     return ''.join([char + strikeover for char in text])
 
-# How the match statement + enum combo should work
-# We define some combinable options, i.e options
-# that affect runtime behavior but are additional
-# User inputs an argument string
-    # argument string:
-        # (not required parameter default is '', but will error out and show usage
-        # if there are no other non-combinable operators
-        # Alternatively we can always define the noop to just return
-        # the string input
-    # We check what the string is
-    # We then match all these separate cases using python's match statement
-    # Once we find a match
-        # We check the specific branches for the combinable operators
-        # Perform the op
-# def my_regex_type(arg_value, pat=re.compile(r"*")):
-# def my_regex_type(arg_value, pat=re.compile(r"(?-|--)+\w*")):
-# def my_regex_type(arg_value, pat=re.compile(r'-+\w*')):
-# def my_regex_type(arg_value, pat=re.compile(r'(-)+\w*')):
-    # if not pat.match(arg_value):
-        # print("Matched")
-        # raise argparse.ArgumentTypeError
-    # print(arg_value)
-    # return arg_value
-
 def main():
     parser = argparse.ArgumentParser(description='Apply string manipulations on text')
-    # parser.add_argument('-b'   , '--bold'           , help='Make bold text'             , action="store_true")
-    # parser.add_argument('-s'   , '--sans'           , help='Use sans-serif characters'  , action="store_true")
-    # parser.add_argument('--sub'                     , help='Convert to subscripts'      , action="store_true")
-    # parser.add_argument('--super'                   , help='Convert to superscripts'    , action="store_true")
-    # parser.add_argument('-i'   , '--italics'        , help='Italicize text'             , action="store_true")
-
-    parser.add_argument('text', metavar='<text>'    , type=str)
-    # parser.add_argument('effects', help='Apply string manipulation', type=list, nargs='*')
-    # parser.add_argument('effects', help='Apply string manipulation', type=str, nargs='*')
-    # parser.add_argument('effects', help='Apply string manipulation', type=my_regex_type)
+    parser.add_argument('text', metavar='<text>', type=str)
     parser.add_argument('effects', help='Apply string manipulation', nargs=argparse.REMAINDER)
-    # parser.add_argument('effect', help='Apply string manipulation', type=str)
-    # parser.add_argument('-V'   , '--version'        , help='Show program version'       , action="store_true")
-    # parser.add_argument('-ds'  , '--doublestruck'   , help='Convert to doublestruck'    , action="store_true")
-    # parser.add_argument('-oe'  , '--oldeng'         , help='Convert to Old English'     , action="store_true")
-    # parser.add_argument('-med' , '--medieval'       , help='Use Medieval characters'    , action="store_true")
-    # parser.add_argument('-mono', '--monospace'      , help='Use Monospace characters'   , action="store_true")
-
-    # parser.add_argument('-v'   , '--verbose'        , help='Display verbose output'     , action="store_true")
-    # parser.add_argument('-st'  , '--strike'         , help='Strike through text'        , type=str, default='-')
-    # parser.add_argument('-m'  , '--char-map'        , metavar='<path>', help='Use a custom character mapping', type=str)
 
     args = parser.parse_args()
     text = str(args.text) if str(args.text) else ''
@@ -146,37 +103,8 @@ def main():
         if ((cmd == '-i' or cmd == '--italics') and
             (opt == '-s' or opt == '--sans')):
             out = convert(boldItalicSansCharMap, text)
-        # if (italic and not sans and not bold):
-            # out = convert(italicCharMap, text)
-        # if (strike == '-'):
         if ((cmd == '-st' or cmd == '--strike') and opt == '-'):
             out = strikethrough(text, u'\u0336')
         if ((cmd == '-st' or cmd == '--strike') and opt == '~'):
-        # elif (strike == '~'):
             out = strikethrough(text, u'\u0334')
     print(out)
-
-        # show_usage()
-    # vers = args.version
-    # verb = args.verbose
-    # bold = args.bold
-    # sans = args.sans
-    # sub = args.sub
-    # sup = args.sub
-    # italic = args.italics
-    # ds = args.doublestruck
-    # oldeng = args.oldeng
-    # med = args.medieval
-    # mono = args.monospace
-    # strike = args.strike
-    # cmap = args.char_map
-
-    # if (vers):
-        # MAJOR, MINOR, PATCH = '0', '1', '0'
-        # print(f'strmanip - v{MAJOR}.{MINOR}.{PATCH}')
-        # sys.exit()
-    # if not text:
-        # sys.exit()
-
-    # out = ""
-    # print(out)
