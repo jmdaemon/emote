@@ -4,6 +4,8 @@ import argparse
 from signal import signal, SIGPIPE, SIG_DFL
 signal(SIGPIPE, SIG_DFL)
 
+MAJOR, MINOR, PATCH = '0', '1', '0'
+
 def convert(char_map, text):
     out = ""
     for char in text:
@@ -24,27 +26,28 @@ def optmatch(cmd, short, long=''):
     else:
         return (cmd == short or cmd == long)
 
+class ArgParser(argparse.ArgumentParser):
+    def error(self, message):
+        sys.stderr.write('error: %s\n' % message)
+        self.print_help()
+        sys.exit()
+
 def main():
-    parser = argparse.ArgumentParser(description='Apply string manipulations on text')
-    parser.add_argument('text', metavar='<text>', type=str)
+    parser = ArgParser(description='Apply string manipulations on text')
+    parser.add_argument('-v', '--version', action='version', version=f'%(prog)s - v{MAJOR}.{MINOR}.{PATCH}')
+    parser.add_argument('text', metavar='<text>', help='The text input', type=str)
     parser.add_argument('effects', help='Apply string manipulation', nargs=argparse.REMAINDER)
 
     args = parser.parse_args()
-    text = str(args.text) if str(args.text) else ''
+    text = str(args.text)
     effects = args.effects
 
     if not text:
         sys.exit()
 
     out = ""
-    if (len(effects) < 1):
-        print("Usage")
-    elif(len(effects) < 2):
+    if(len(effects) < 2):
         cmd = effects[0]
-        if (optmatch(cmd, 'v', '--version')):
-            MAJOR, MINOR, PATCH = '0', '1', '0'
-            print(f'strmanip - v{MAJOR}.{MINOR}.{PATCH}')
-            sys.exit()
         if (optmatch(cmd, '--sub')):
             out = convert(subscriptCharMap, text)
         if (optmatch(cmd, '--super')):
