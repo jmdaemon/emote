@@ -18,6 +18,12 @@ def convert(char_map, text):
 def strikethrough(text, strikeover):
     return ''.join([char + strikeover for char in text])
 
+def optmatch(cmd, short, long=''):
+    if (long == ''):
+        return (cmd == short)
+    else:
+        return (cmd == short or cmd == long)
+
 def main():
     parser = argparse.ArgumentParser(description='Apply string manipulations on text')
     parser.add_argument('text', metavar='<text>', type=str)
@@ -35,41 +41,38 @@ def main():
         print("Usage")
     elif(len(effects) < 2):
         cmd = effects[0]
-        if (cmd == 'v' or cmd == '--version'):
+        if (optmatch(cmd, 'v', '--version')):
             MAJOR, MINOR, PATCH = '0', '1', '0'
             print(f'strmanip - v{MAJOR}.{MINOR}.{PATCH}')
             sys.exit()
-        if (cmd == '--sub'):
+        if (optmatch(cmd, '--sub')):
             out = convert(subscriptCharMap, text)
-        if (cmd == '--super'):
+        if (optmatch(cmd, '--super')):
             out = convert(superscriptCharMap, text)
-        if (cmd == '-ds' or cmd == '--doublestruck'):
+        if (optmatch(cmd, '-ds', '--doublestruck')):
             out = convert(doubleStruckCharMap, text)
-        if (cmd == '-oe' or cmd == '--oldeng'):
+        if (optmatch(cmd, '-oe', '--oldeng')):
             out = convert(oldEnglishCharMap, text)
-        if (cmd == '-med' or cmd == '--medieval'):
+        if (optmatch(cmd, '-med', '--medieval')):
             out = convert(medievalCharMap, text)
-        if (cmd == '-mono' or cmd == '--monospace'):
+        if (optmatch(cmd, '-mono', '--monospace')):
             out = convert(monospaceCharMap, text)
-        if (cmd == '-b' or cmd == '--bold'):
+        if (optmatch(cmd, '-b', '--bold')):
             out = convert(boldCharMap, text)
-        if (cmd == '-i' or cmd == '--italics'):
+        if (optmatch(cmd, '-i', '--italics')):
             out = convert(italicCharMap, text)
     elif(len(effects) < 3):
         cmd = effects[0]
         opt = effects[1]
         # Handle combinable effects
-        if ((cmd == '-b' or cmd == '--bold') and
-            (opt == '-s' or opt == '--sans')):
+        if (optmatch(cmd, '-b', '--bold') and optmatch(opt, '-s', '--sans')):
             out = convert(boldSansCharMap, text)
-        if ((cmd == '-i' or cmd == '--italics') and
-            (opt == '-b' or opt == '--bold')):
+        if (optmatch(cmd, '-i', '--italics') and optmatch(opt, '-b', '--bold')):
             out = convert(boldItalicCharMap, text)
-        if ((cmd == '-i' or cmd == '--italics') and
-            (opt == '-s' or opt == '--sans')):
+        if (optmatch(cmd, '-i', '--italics') and optmatch(opt, '-s', '--sans')):
             out = convert(boldItalicSansCharMap, text)
-        if ((cmd == '-st' or cmd == '--strike') and opt == '-'):
+        if (optmatch(cmd, '-st', '--strike') and optmatch(opt, '-')):
             out = strikethrough(text, u'\u0336')
-        if ((cmd == '-st' or cmd == '--strike') and opt == '~'):
+        if (optmatch(cmd, '-st', '--strike') and optmatch(opt, '~')):
             out = strikethrough(text, u'\u0334')
     print(out)
