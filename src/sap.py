@@ -2,6 +2,7 @@ from cmapdefs import *
 import sys
 import argparse
 from flip import *
+from zalgo import *
 from signal import signal, SIGPIPE, SIG_DFL
 signal(SIGPIPE, SIG_DFL)
 
@@ -37,8 +38,12 @@ def main():
     parser = ArgParser(description='Apply string manipulations on text')
     subparsers = parser.add_subparsers(dest='command', help='[sub-cmd] help')
 
+    # Subcommands
     parser_flip = subparsers.add_parser('flip', help='Flips Text')
     parser_flip.set_defaults(which='flip')
+
+    parser_flip = subparsers.add_parser('zalgo', help='Creates spooky text')
+    parser_flip.set_defaults(which='zalgo')
 
     parser.add_argument('-v', '--version', action='version', version=f'%(prog)s - v{MAJOR}.{MINOR}.{PATCH}', help='Show program version')
     parser.add_argument('-V', '--verbose', action='store_true')
@@ -57,6 +62,9 @@ def main():
     # Subcommands
     if (subcmd == 'flip'):
         flip(text)
+        return
+    if (subcmd == 'zalgo'):
+        create_zalgo(text)
         return
 
     # Main
