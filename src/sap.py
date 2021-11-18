@@ -36,12 +36,9 @@ class ArgParser(argparse.ArgumentParser):
 def main():
     parser = ArgParser(description='Apply string manipulations on text')
     subparsers = parser.add_subparsers(dest='command', help='[sub-cmd] help')
-    # subparsers = parser.add_subparsers(dest='command')
 
     parser_flip = subparsers.add_parser('flip', help='Flips Text')
     parser_flip.set_defaults(which='flip')
-
-    # parser_flip.set_defaults(func=flip)
 
     parser.add_argument('-v', '--version', action='version', version=f'%(prog)s - v{MAJOR}.{MINOR}.{PATCH}', help='Show program version')
     parser.add_argument('-V', '--verbose', action='store_true')
@@ -52,21 +49,13 @@ def main():
     ver = args.verbose
     text = str(args.text)
     effects = args.effects
-
-    # print(args)
-
-    # flipt = parser.parse_args(['flip']).cmd(text)
-    # flipt = args(['flip'])
-    # flipt = parser.parse_args(['flip'])
-    # parser.parse_args(['flip', '12'])
-    # if parser.parse_args(["flip"])
-    cmd = vars(args)['command']
+    subcmd = vars(args)['command']
 
     if not text:
         sys.exit()
 
     # Subcommands
-    if (cmd == 'flip'):
+    if (subcmd == 'flip'):
         flip(text)
         return
 
