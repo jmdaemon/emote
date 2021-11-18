@@ -153,6 +153,3 @@ def flip(text, backwards=True, upside_down=True, convert_html=False):
     print(txt)
     if html != '':
         print(html)
-
-# if __name__ == '__main__':
-    # flip('testing testing', True, True, False)

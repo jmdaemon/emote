@@ -1,6 +1,7 @@
 from cmapdefs import *
 import sys
 import argparse
+from flip import *
 from signal import signal, SIGPIPE, SIG_DFL
 signal(SIGPIPE, SIG_DFL)
 
@@ -34,19 +35,42 @@ class ArgParser(argparse.ArgumentParser):
 
 def main():
     parser = ArgParser(description='Apply string manipulations on text')
+    subparsers = parser.add_subparsers(dest='command', help='[sub-cmd] help')
+    # subparsers = parser.add_subparsers(dest='command')
+
+    parser_flip = subparsers.add_parser('flip', help='Flips Text')
+    parser_flip.set_defaults(which='flip')
+
+    # parser_flip.set_defaults(func=flip)
+
     parser.add_argument('-v', '--version', action='version', version=f'%(prog)s - v{MAJOR}.{MINOR}.{PATCH}', help='Show program version')
     parser.add_argument('-V', '--verbose', action='store_true')
-    parser.add_argument('text', metavar='<text>', help='The text input', type=str)
-    parser.add_argument('effects', help='Apply string manipulation', nargs=argparse.REMAINDER)
+    parser.add_argument('text', metavar='<text>', help='The text input', default=None)
+    parser.add_argument('effects', help='Apply string manipulation', nargs=argparse.REMAINDER, default=None)
 
     args = parser.parse_args()
     ver = args.verbose
     text = str(args.text)
     effects = args.effects
 
+    # print(args)
+
+    # flipt = parser.parse_args(['flip']).cmd(text)
+    # flipt = args(['flip'])
+    # flipt = parser.parse_args(['flip'])
+    # parser.parse_args(['flip', '12'])
+    # if parser.parse_args(["flip"])
+    cmd = vars(args)['command']
+
     if not text:
         sys.exit()
 
+    # Subcommands
+    if (cmd == 'flip'):
+        flip(text)
+        return
+
+    # Main
     out = ""
     if(len(effects) < 2):
         cmd = effects[0]
@@ -66,6 +90,8 @@ def main():
             out = convert(boldCharMap, text)
         if (optmatch(cmd, '-i', '--italics')):
             out = convert(italicCharMap, text)
+        # if (optmatch(cmd, '-f', '--flip')):
+            # out = convert(italicCharMap, text)
     elif(len(effects) < 3):
         cmd = effects[0]
         opt = effects[1]
