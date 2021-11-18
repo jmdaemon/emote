@@ -46,22 +46,3 @@ def to_ascii(msg):
                 output += list(MORSE.keys())[list(MORSE.values()).index(morse)]
                 morse = ''
     return output
-
-# CONTEXT_SETTINGS = dict(help_option_names=['-h', '--help'])
-# @click.command  (options_metavar='[options]'        , context_settings=CONTEXT_SETTINGS)
-# @click.option   ('-V'       , '--version', "version", help='Show program version')
-# @click.option   ('-v'       , '--verbose', "verbose", help='Show verbose output', default=False)
-# @click.option   ('-m'       , '--morse', "morse"    , help='Convert ascii to morse code' , is_flag=True, default=False)
-# @click.option   ('-a'       , '--ascii', "_ascii"   , help='Convert morse code to ascii', is_flag=True, default=False)
-# @click.argument ('msg'      , metavar="<msg>"       , required=False)
-
-# def cli(version, verbose, morse, _ascii, msg):
-    # if morse:
-        # print(to_morse(msg.upper()))
-    # elif _ascii:
-        # print(to_ascii(msg))
-    # else:
-        # print("Show help message")
-
-# if __name__ == '__main__':
-    # cli()
