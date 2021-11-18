@@ -73,9 +73,7 @@ def normalize(num_tuple, base, exp):
         return tuple(result)
     return norm(num_up, num_mid, num_down)
 
-# def create_zalgo(text, up, mid, down, intensity='normal'):
-# def create_zalgo(text, up=False, mid=True, down=True, intensity='normal'):
-def create_zalgo(text, up=False, mid=True, down=True, intensity='mini'):
+def zalgo(text, up=False, mid=True, down=True, intensity='mini'):
     out = ''
     for char in text:
         if is_zalgo_char(char):

@@ -1,8 +1,8 @@
 from cmapdefs import *
 import sys
 import argparse
-from flip import *
-from zalgo import *
+from flip import flip
+from zalgo import zalgo
 from signal import signal, SIGPIPE, SIG_DFL
 signal(SIGPIPE, SIG_DFL)
 
@@ -62,9 +62,9 @@ def main():
     # Subcommands
     if (subcmd == 'flip'):
         flip(text)
-        return
     if (subcmd == 'zalgo'):
-        create_zalgo(text)
+        zalgo(text)
+    if (subcmd is not None):
         return
 
     # Main
@@ -87,8 +87,6 @@ def main():
             out = convert(boldCharMap, text)
         if (optmatch(cmd, '-i', '--italics')):
             out = convert(italicCharMap, text)
-        # if (optmatch(cmd, '-f', '--flip')):
-            # out = convert(italicCharMap, text)
     elif(len(effects) < 3):
         cmd = effects[0]
         opt = effects[1]
