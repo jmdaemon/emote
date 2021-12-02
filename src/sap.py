@@ -88,7 +88,7 @@ def main():
         # Handle combinable effects
         if (optmatch(cmd, '--cmap')):
             opt = effects[1]
-            cmap = read_charmap(read_file(opt))
+            cmap = read_charmap(opt)
             out = convert(cmap, text)
         if (optmatch(cmd, '-b', '--bold') and optmatch(opt, '-s', '--sans')):
             out = convert(boldSansCharMap, text)
