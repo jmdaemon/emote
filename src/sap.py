@@ -1,4 +1,5 @@
 from cmapdefs import *
+from charmap import *
 import sys
 import re
 from flip import flip
@@ -31,12 +32,6 @@ def optmatch(cmd, short, long=''):
 def main():
     cmds = ['flip', 'zalgo', 'morse']
 
-    # arg = sys.argv[1]
-    # subcmd = arg
-    # text = sys.argv[2]
-    # effects = [subcmd,]
-
-    # cmd = sys.argv[1]
     subcmd = None
     text = None
     effects = None
@@ -91,6 +86,10 @@ def main():
         cmd = effects[0]
         opt = effects[1]
         # Handle combinable effects
+        if (optmatch(cmd, '--cmap')):
+            opt = effects[1]
+            cmap = read_charmap(read_file(opt))
+            out = convert(cmap, text)
         if (optmatch(cmd, '-b', '--bold') and optmatch(opt, '-s', '--sans')):
             out = convert(boldSansCharMap, text)
         if (optmatch(cmd, '-i', '--italics') and optmatch(opt, '-b', '--bold')):
