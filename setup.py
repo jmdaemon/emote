@@ -1,14 +1,15 @@
-import setuptools
+from setuptools import find_packages, setup
 
 with open("README.md", "r", encoding="utf-8") as fh:
     long_description = fh.read()
 
-setuptools.setup(
+setup(
     name="sap-jmd",
     version="0.1.0",
+    license='MIT',
     author="Joseph Diza",
     author_email="josephm.diza@gmail.com",
-    description="Apply a series of string manipulations on text easily.",
+    description="Easily apply arbitrary string manipulations on text.",
     long_description=long_description,
     long_description_content_type="text/markdown",
     url="https://github.com/jmdaemon/sap",
@@ -19,9 +20,9 @@ setuptools.setup(
         "Operating System :: OS Independent",
     ],
     package_dir={"": "src"},
-    packages=setuptools.find_packages(where="src"),
+    packages=find_packages(where="src"),
     python_requires=">=3.6",
-    py_modules=['sap'],
+    py_modules=['sap.charmap'],
     install_requires=[],
     entry_points={
         'console_scripts': [
