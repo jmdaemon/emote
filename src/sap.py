@@ -1,6 +1,7 @@
 from cmapdefs import *
+from charmap import *
 import sys
-import argparse
+import re
 from flip import flip
 from zalgo import zalgo
 from morse import to_morse
@@ -28,37 +29,23 @@ def optmatch(cmd, short, long=''):
         return (cmd == short)
     else:
         return (cmd == short or cmd == long)
-
-class ArgParser(argparse.ArgumentParser):
-    def error(self, message):
-        sys.stderr.write('error: %s\n' % message)
-        self.print_help()
-        sys.exit()
-
 def main():
-    parser = ArgParser(description='Apply string manipulations on text')
-    subparsers = parser.add_subparsers(dest='command', help='[sub-cmd] help')
+    cmds = ['flip', 'zalgo', 'morse']
 
-    # Subcommands
-    subparser = subparsers.add_parser('flip', help='Flips Text')
-    subparser.set_defaults(which='flip')
+    subcmd = None
+    text = None
+    effects = None
 
-    subparser = subparsers.add_parser('zalgo', help='Creates spooky text')
-    subparser.set_defaults(which='zalgo')
+    for cmd in cmds:
+        if cmd in sys.argv:
+            subcmd = cmd
 
-    subparser = subparsers.add_parser('morse', help='Translates text into morse code')
-    subparser.set_defaults(which='morse')
-
-    parser.add_argument('-v', '--version', action='version', version=f'%(prog)s - v{MAJOR}.{MINOR}.{PATCH}', help='Show program version')
-    parser.add_argument('-V', '--verbose', action='store_true')
-    parser.add_argument('text', metavar='<text>', help='The text input', default=None)
-    parser.add_argument('effects', help='Apply string manipulation', nargs=argparse.REMAINDER, default=None)
-
-    args = parser.parse_args()
-    ver = args.verbose
-    text = str(args.text)
-    effects = args.effects
-    subcmd = vars(args)['command']
+    if subcmd is None:
+        text = sys.argv[1]
+        effects = sys.argv[2:]
+    else:
+        text    = sys.argv[2]
+        effects = sys.argv[3:]
 
     if not text:
         sys.exit()
@@ -99,6 +86,10 @@ def main():
         cmd = effects[0]
         opt = effects[1]
         # Handle combinable effects
+        if (optmatch(cmd, '--cmap')):
+            opt = effects[1]
+            cmap = read_charmap(opt)
+            out = convert(cmap, text)
         if (optmatch(cmd, '-b', '--bold') and optmatch(opt, '-s', '--sans')):
             out = convert(boldSansCharMap, text)
         if (optmatch(cmd, '-i', '--italics') and optmatch(opt, '-b', '--bold')):
