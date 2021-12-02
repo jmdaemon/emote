@@ -1,6 +1,5 @@
 from cmapdefs import *
 import sys
-# import argparse
 import re
 from flip import flip
 from zalgo import zalgo
@@ -29,97 +28,32 @@ def optmatch(cmd, short, long=''):
         return (cmd == short)
     else:
         return (cmd == short or cmd == long)
-
-# class ArgParser(argparse.ArgumentParser):
-    # def error(self, message):
-        # sys.stderr.write('error: %s\n' % message)
-        # self.print_help()
-        # sys.exit()
-
-class CLI():
-    def __init__(self, argv, cmds: list):
-        self.cmds = cmds
-
-    def find(self):
-        res = ''
-        for cmd in self.cmds:
-            # return(found(self.argv))
-            if (cmd.found(self.argv) == 1):
-                res = self.short
-                break
-            elif (cmd.found(self.argv) == 0):
-                res = self.long
-                break
-        return res
-
-class Command():
-    def __init__(self, short='', long=''):
-        self.short = short
-        self.long = long
-
-    def found(self, argv):
-        # return True if (short in argv or long in argv) else False
-        # if (self.short in argv):
-            # return self.short
-        # elif (self.long in argv):
-            # return self.long
-        # else:
-            # return ''
-        if self.short in argv:
-            return 1
-        elif self.long in argv:
-            return 0
-        else:
-            return -1
-
-
 def main():
+    cmds = ['flip', 'zalgo', 'morse']
 
-    # parser = ArgParser(description='Apply string manipulations on text')
-    # subparsers = parser.add_subparsers(dest='command', help='[sub-cmd] help')
+    # arg = sys.argv[1]
+    # subcmd = arg
+    # text = sys.argv[2]
+    # effects = [subcmd,]
 
-    # Subcommands
-    # subparser = subparsers.add_parser('flip', help='Flips Text')
-    # subparser.set_defaults(which='flip')
+    # cmd = sys.argv[1]
+    subcmd = None
+    text = None
+    effects = None
 
-    # subparser = subparsers.add_parser('zalgo', help='Creates spooky text')
-    # subparser.set_defaults(which='zalgo')
+    for cmd in cmds:
+        if cmd in sys.argv:
+            subcmd = cmd
 
-    # subparser = subparsers.add_parser('morse', help='Translates text into morse code')
-    # subparser.set_defaults(which='morse')
+    if subcmd is None:
+        text = sys.argv[1]
+        effects = sys.argv[2:]
+    else:
+        text    = sys.argv[2]
+        effects = sys.argv[3:]
 
-    # parser.add_argument('-v', '--version', action='version', version=f'%(prog)s - v{MAJOR}.{MINOR}.{PATCH}', help='Show program version')
-    # parser.add_argument('-V', '--verbose', action='store_true')
-    # parser.add_argument('text', metavar='<text>', help='The text input', default=None)
-    # parser.add_argument('effects', help='Apply string manipulation', nargs=argparse.REMAINDER, default=None)
-    # flipc = Command('flip')
-
-    # cli = CLI(argv, [flipc])
-
-    # for arg in argv:
-    # subcmd = sys.argv[0]
-    # text = sys.argv[1]
-
-    # args = parser.parse_args()
-    # ver = args.verbose
-    # text = str(args.text)
-    # effects = args.effects
-    # subcmd = vars(args)['command']
-    arg = sys.argv[1]
-    subcmd = arg
-    text = sys.argv[2]
-    # effects = sys.argv[2:-1]
-    # effects = sys.argv[2:-1]
-    # effects = [subcmd, sys.argv[2:-1]]
-    effects = [subcmd,]
-    # effects = sys.argv[3]
-    # effects = [arg,]
-    # print(arg, text, effects)
-
-    # if cli.find():
-
-    # if not text:
-        # sys.exit()
+    if not text:
+        sys.exit()
 
     # Subcommands
     # Add subargs for each of these commands
@@ -130,8 +64,8 @@ def main():
         zalgo(text)
     if (subcmd == 'morse'):
         print(to_morse(text.upper()))
-    # if (subcmd is not None):
-        # return
+    if (subcmd is not None):
+        return
 
     # Main
     out = ""
