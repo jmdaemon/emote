@@ -81,21 +81,21 @@ def main():
     if(len(effects) < 2):
         cmd = effects[0]
         if (optmatch(cmd, '--sub')):
-            out = convert(mapto('subscriptCharMap'), text)
+            out = convert(mapto('subscript'), text)
         if (optmatch(cmd, '--super')):
-            out = convert(mapto('superscriptCharMap'), text)
+            out = convert(mapto('superscript'), text)
         if (optmatch(cmd, '-ds', '--doublestruck')):
-            out = convert(mapto('doubleStruckCharMap'), text)
+            out = convert(mapto('doubleStruck'), text)
         if (optmatch(cmd, '-oe', '--oldeng')):
-            out = convert(mapto('oldEnglishCharMap'), text)
+            out = convert(mapto('oldEnglish'), text)
         if (optmatch(cmd, '-med', '--medieval')):
-            out = convert(mapto('medievalCharMap'), text)
+            out = convert(mapto('medieval'), text)
         if (optmatch(cmd, '-mono', '--monospace')):
-            out = convert(mapto('monospaceCharMap'), text)
+            out = convert(mapto('monospace'), text)
         if (optmatch(cmd, '-b', '--bold')):
-            out = convert(mapto('boldCharMap'), text)
+            out = convert(mapto('bold'), text)
         if (optmatch(cmd, '-i', '--italics')):
-            out = convert(mapto('italicCharMap'), text)
+            out = convert(mapto('italic'), text)
     elif(len(effects) < 3):
         cmd = effects[0]
         opt = effects[1]
@@ -105,11 +105,11 @@ def main():
             cmap = read_charmap(opt)
             out = convert(cmap, text)
         if (optmatch(cmd, '-b', '--bold') and optmatch(opt, '-s', '--sans')):
-            out = convert(mapto('boldSansCharMap'), text)
+            out = convert(mapto('boldSans'), text)
         if (optmatch(cmd, '-i', '--italics') and optmatch(opt, '-b', '--bold')):
-            out = convert(mapto('boldItalicCharMap'), text)
+            out = convert(mapto('boldItalic'), text)
         if (optmatch(cmd, '-i', '--italics') and optmatch(opt, '-s', '--sans')):
-            out = convert(mapto('italicSansCharMap'), text)
+            out = convert(mapto('italicSans'), text)
         if (optmatch(cmd, '-st', '--strike') and optmatch(opt, '-')):
             out = strikethrough(text, u'\u0336')
         if (optmatch(cmd, '-st', '--strike') and optmatch(opt, '~')):
