@@ -1,5 +1,4 @@
 import random
-import math
 
 zalgo_up = [
      # 1         , 2          , 3          , 4
@@ -65,6 +64,7 @@ def to_zalgo(out, option, char_length, char_list):
 
 def normalize(num_tuple, base, exp):
     num_up, num_mid, num_down = num_tuple
+
     def norm(*numbers):
         result = []
         for num in numbers:
@@ -78,15 +78,13 @@ def zalgo(text, up=False, mid=True, down=True, intensity='mini'):
     for char in text:
         if is_zalgo_char(char):
             continue
-        zalgo = (zalgo_up, zalgo_mid, zalgo_down)
-        nums = ()
         out += char
         if (intensity == 'mini'):
-                num_up, num_mid, num_down = rand(8, 2, 8)
+            num_up, num_mid, num_down = rand(8, 2, 8)
         elif (intensity == 'normal'):
-                num_up, num_mid, num_down = normalize(rand(16, 6, 16), 2, 1)
+            num_up, num_mid, num_down = normalize(rand(16, 6, 16), 2, 1)
         elif (intensity == 'maxi'):
-                num_up, num_mid, num_down = normalize(rand(64, 16, 64), 2, 4)
+            num_up, num_mid, num_down = normalize(rand(64, 16, 64), 2, 4)
         out = to_zalgo(out, up    , num_up    , zalgo_up)
         out = to_zalgo(out, down  , num_down  , zalgo_down)
         out = to_zalgo(out, mid   , num_mid   , zalgo_mid)

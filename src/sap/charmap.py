@@ -20,7 +20,7 @@ def to_json(charmap: dict) -> str:
     o = json.dumps(charmap, indent=4, ensure_ascii=False) # Don't unescape Unicode characters
     return o
 
-def export_charmap(fname: str, charmap: dict):
+def export_charmap(charmap: dict, fname: str):
     file = open(fname, 'w')
     output = to_json(charmap)
     file.write(output)
