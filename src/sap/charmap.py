@@ -1,18 +1,13 @@
 import json
+import wora.file
 
 def to_charmap(jstr: str) -> dict:
     '''Converts a json string to a charmap dictionary'''
     data = json.loads(jstr)
     return data
 
-def read_file(fname: str) -> str:
-    file = open(fname, 'r')
-    res = file.read()
-    file.close()
-    return res
-
 def read_charmap(conts: str) -> dict:
-    return(to_charmap(read_file(conts)))
+    return(to_charmap(wora.file.read_file(conts)))
 
 # Convert character maps to json
 def to_json(charmap: dict) -> str:
@@ -21,7 +16,4 @@ def to_json(charmap: dict) -> str:
     return o
 
 def export_charmap(charmap: dict, fname: str):
-    file = open(fname, 'w')
-    output = to_json(charmap)
-    file.write(output)
-    file.close()
+    wora.file.write_file(fname, to_json(charmap))

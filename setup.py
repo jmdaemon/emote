@@ -5,7 +5,7 @@ with open('README.md', 'r', encoding='utf-8') as fh:
 
 setup(
     name='sap-jmd',
-    version='0.1.4',
+    version='0.1.5',
     license='MIT',
     author='Joseph Diza',
     author_email='josephm.diza@gmail.com',
@@ -23,7 +23,7 @@ setup(
     packages=find_packages(where='src'),
     python_requires='>=3.6',
     py_modules=['sap.charmap'],
-    install_requires=[],
+    install_requires=['wora'],
     include_package_data=True,
     zip_safe=False,
     entry_points={
