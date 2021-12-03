@@ -1,21 +1,14 @@
-from pathlib import Path
-# from cmapdefs import *
 from sap.cmapdefs import cmapdefs
 from sap.charmap import read_charmap
-import sys
-# import re
 from sap.flip import flip
 from sap.zalgo import zalgo
 from sap.morse import to_morse
-from signal import signal, SIGPIPE, SIG_DFL
-signal(SIGPIPE, SIG_DFL)
-
 import pathlib
-
+from signal import signal, SIGPIPE, SIG_DFL
+import sys
 import site
-def get_site_packages_dir():
-    return [p for p  in site.getsitepackages()
-            if "site-packages" in p][0]
+
+signal(SIGPIPE, SIG_DFL)
 
 MAJOR, MINOR, PATCH = '0', '1', '0'
 
@@ -41,22 +34,14 @@ def optmatch(cmd, short, long=''):
 
 def mapto(cmap: str):
     file = cmapdefs[cmap]
-    # path = (f'{get_site_packages_dir()}resources/{file}')
-    # path = (f'~/.local/lib/python3.9/site-packages/sap/resources/{file}')
-    # path = Path(f'./resources/{file}')
-    # path = pathlib.Path(f'~/.local/lib/python3.9/site-packages/sap/resources/{file}').expanduser()
-    # root=get_site_packages_dir()
-    # local=get_site_packages_dir()
-    sitepkgs = site.getsitepackages()
-    localsitepkgs = site.getusersitepackages()
-    root    = Path(f'{sitepkgs}/sap')
-    local   = Path(f'{localsitepkgs}/sap')
+    root    = pathlib.Path(f'{site.getsitepackages()}/sap')
+    local   = pathlib.Path(f'{site.getusersitepackages()}/sap')
     path = ''
     if (root.is_dir()):
         path = pathlib.Path(f'{root}/resources/{file}').expanduser()
     else:
         path = pathlib.Path(f'{local}/resources/{file}').expanduser()
-    return(read_charmap(path))
+    return (read_charmap(path))
 
 def main():
     cmds = ['flip', 'zalgo', 'morse']
@@ -114,7 +99,6 @@ def main():
     elif(len(effects) < 3):
         cmd = effects[0]
         opt = effects[1]
-        # convert([\a-zA-Z]*/convert(mapto())/g
         # Handle combinable effects
         if (optmatch(cmd, '--cmap')):
             opt = effects[1]
@@ -125,7 +109,7 @@ def main():
         if (optmatch(cmd, '-i', '--italics') and optmatch(opt, '-b', '--bold')):
             out = convert(mapto('boldItalicCharMap'), text)
         if (optmatch(cmd, '-i', '--italics') and optmatch(opt, '-s', '--sans')):
-            out = convert(mapto('boldItalicSansCharMap'), text)
+            out = convert(mapto('italicSansCharMap'), text)
         if (optmatch(cmd, '-st', '--strike') and optmatch(opt, '-')):
             out = strikethrough(text, u'\u0336')
         if (optmatch(cmd, '-st', '--strike') and optmatch(opt, '~')):

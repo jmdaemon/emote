@@ -5,7 +5,7 @@ with open('README.md', 'r', encoding='utf-8') as fh:
 
 setup(
     name='sap-jmd',
-    version='0.1.1',
+    version='0.1.2',
     license='MIT',
     author='Joseph Diza',
     author_email='josephm.diza@gmail.com',
