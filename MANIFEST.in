@@ -1,2 +1,2 @@
 recursive-include resources *
-recursive-include src/sap/resources *
+recursive-include src/sapply/resources *

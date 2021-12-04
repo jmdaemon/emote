@@ -1,8 +1,8 @@
-from sap.cmapdefs import cmapdefs
-from sap.charmap import read_charmap
-from sap.flip import flip
-from sap.zalgo import zalgo
-from sap.morse import to_morse
+from sapply.cmapdefs import cmapdefs
+from sapply.charmap import read_charmap
+from sapply.flip import flip
+from sapply.zalgo import zalgo
+from sapply.morse import to_morse
 import pathlib
 from signal import signal, SIGPIPE, SIG_DFL
 import sys
@@ -34,8 +34,8 @@ def optmatch(cmd, short, long=''):
 
 def mapto(cmap: str):
     file = cmapdefs[cmap]
-    root    = pathlib.Path(f'{site.getsitepackages()}/sap')
-    local   = pathlib.Path(f'{site.getusersitepackages()}/sap')
+    root    = pathlib.Path(f'{site.getsitepackages()}/sapply')
+    local   = pathlib.Path(f'{site.getusersitepackages()}/sapply')
     path = ''
     if (root.is_dir()):
         path = pathlib.Path(f'{root}/resources/{file}').expanduser()
