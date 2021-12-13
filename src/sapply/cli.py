@@ -3,7 +3,7 @@ from sapply.charmap import read_charmap
 from sapply.flip import flip
 from sapply.zalgo import zalgo
 from sapply.morse import to_morse
-import pathlib
+from pathlib import Path
 from signal import signal, SIGPIPE, SIG_DFL
 import sys
 import site
@@ -28,13 +28,10 @@ def strikethrough(text, strikeover):
 
 def mapto(cmap: str):
     file = cmapdefs[cmap]
-    root    = pathlib.Path(f'{site.getsitepackages()}/sapply')
-    local   = pathlib.Path(f'{site.getusersitepackages()}/sapply')
-    path = ''
-    if (root.is_dir()):
-        path = pathlib.Path(f'{root}/resources/{file}').expanduser()
-    else:
-        path = pathlib.Path(f'{local}/resources/{file}').expanduser()
+    form = lambda sitefp: Path(f'{sitefp}/sapply').expanduser()
+    root    = f'{form(site.getsitepackages())}/resources/{file}'
+    local   = f'{form(site.getusersitepackages())}/resources/{file}'
+    path    = root if Path(root).is_dir() else local
     return (read_charmap(path))
 
 def main():
@@ -64,7 +61,8 @@ def main():
         case 'flip'     : flip(text)
         case 'zalgo'    : zalgo(text)
         case 'morse'    : print(to_morse(text.upper()))
-        case _          : return
+    if (subcmd is not None):
+        return
 
     out = ""
     if (len(effects) < 2):
