@@ -59,20 +59,15 @@ def main():
         sys.exit()
 
     # Subcommands
-    # Add subargs for each of these commands
-    # Pass args parameter and parse commands in each function
-    if (subcmd == 'flip'):
-        flip(text)
-    if (subcmd == 'zalgo'):
-        zalgo(text)
-    if (subcmd == 'morse'):
-        print(to_morse(text.upper()))
-    if (subcmd is not None):
-        return
+    # TODO: Pass `effects` off to function for processing
+    match subcmd:
+        case 'flip'     : flip(text)
+        case 'zalgo'    : zalgo(text)
+        case 'morse'    : print(to_morse(text.upper()))
+        case _          : return
 
-    # Main
     out = ""
-    if(len(effects) < 2):
+    if (len(effects) < 2):
         cmd = effects[0]
         match cmd:
             case '--sub'                        : out = convert(mapto('subscript'), text)
@@ -83,7 +78,7 @@ def main():
             case '-mono'    | '--monospace'     : out = convert(mapto('monospace'), text)
             case '-b'       | '--bold'          : out = convert(mapto('bold'), text)
             case '-i'       | '--italics'       : out = convert(mapto('italic'), text)
-    elif(len(effects) < 3):
+    elif (len(effects) < 3):
         cmd = effects[0]
         opt = effects[1]
         # Handle combinable effects
