@@ -26,12 +26,6 @@ def convert(char_map, text):
 def strikethrough(text, strikeover):
     return ''.join([char + strikeover for char in text])
 
-def optmatch(cmd, short, long=''):
-    if (long == ''):
-        return (cmd == short)
-    else:
-        return (cmd == short or cmd == long)
-
 def mapto(cmap: str):
     file = cmapdefs[cmap]
     root    = pathlib.Path(f'{site.getsitepackages()}/sapply')
@@ -80,38 +74,26 @@ def main():
     out = ""
     if(len(effects) < 2):
         cmd = effects[0]
-        if (optmatch(cmd, '--sub')):
-            out = convert(mapto('subscript'), text)
-        if (optmatch(cmd, '--super')):
-            out = convert(mapto('superscript'), text)
-        if (optmatch(cmd, '-ds', '--doublestruck')):
-            out = convert(mapto('doubleStruck'), text)
-        if (optmatch(cmd, '-oe', '--oldeng')):
-            out = convert(mapto('oldEnglish'), text)
-        if (optmatch(cmd, '-med', '--medieval')):
-            out = convert(mapto('medieval'), text)
-        if (optmatch(cmd, '-mono', '--monospace')):
-            out = convert(mapto('monospace'), text)
-        if (optmatch(cmd, '-b', '--bold')):
-            out = convert(mapto('bold'), text)
-        if (optmatch(cmd, '-i', '--italics')):
-            out = convert(mapto('italic'), text)
+        match cmd:
+            case '--sub'                        : out = convert(mapto('subscript'), text)
+            case '--super'                      : out = convert(mapto('superscript'), text)
+            case '-ds'      | '--doublestruck'  : out = convert(mapto('doubleStruck'), text)
+            case '-oe'      | '--oldeng'        : out = convert(mapto('oldEnglish'), text)
+            case '-med'     | '--medieval'      : out = convert(mapto('medieval'), text)
+            case '-mono'    | '--monospace'     : out = convert(mapto('monospace'), text)
+            case '-b'       | '--bold'          : out = convert(mapto('bold'), text)
+            case '-i'       | '--italics'       : out = convert(mapto('italic'), text)
     elif(len(effects) < 3):
         cmd = effects[0]
         opt = effects[1]
         # Handle combinable effects
-        if (optmatch(cmd, '--cmap')):
-            opt = effects[1]
-            cmap = read_charmap(opt)
-            out = convert(cmap, text)
-        if (optmatch(cmd, '-b', '--bold') and optmatch(opt, '-s', '--sans')):
-            out = convert(mapto('boldSans'), text)
-        if (optmatch(cmd, '-i', '--italics') and optmatch(opt, '-b', '--bold')):
-            out = convert(mapto('boldItalic'), text)
-        if (optmatch(cmd, '-i', '--italics') and optmatch(opt, '-s', '--sans')):
-            out = convert(mapto('italicSans'), text)
-        if (optmatch(cmd, '-st', '--strike') and optmatch(opt, '-')):
-            out = strikethrough(text, u'\u0336')
-        if (optmatch(cmd, '-st', '--strike') and optmatch(opt, '~')):
-            out = strikethrough(text, u'\u0334')
+        match cmd, opt:
+            case '--cmap', _:
+                cmap = read_charmap(opt)
+                out = convert(cmap, text)
+            case '-b'  | '--bold'   , '-s'  | '--sans'  : out = convert(mapto('boldSans'), text)
+            case '-i'  | '--italics', '-b'  | '--bold'  : out = convert(mapto('boldItalic'), text)
+            case '-i'  | '--italics', '-s'  | '--sans'  : out = convert(mapto('italicSans'), text)
+            case '-st' | '--strike' , '-'               : out = strikethrough(text, u'\u0336')
+            case '-st' | '--strike' , '~'               : out = strikethrough(text, u'\u0334')
     print(out)
