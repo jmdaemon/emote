@@ -5,7 +5,7 @@ with open('README.md', 'r', encoding='utf-8') as fh:
 
 setup(
     name='sapply',
-    version='0.1.8',
+    version='0.1.9',
     license='MIT',
     author='Joseph Diza',
     author_email='josephm.diza@gmail.com',
@@ -23,7 +23,7 @@ setup(
     packages=find_packages(where='src'),
     python_requires='>=3.6',
     py_modules=['sapply.charmap'],
-    install_requires=['wora'],
+    install_requires=['wora', 'spacy'],
     include_package_data=True,
     zip_safe=False,
     entry_points={

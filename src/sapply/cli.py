@@ -3,6 +3,7 @@ from sapply.charmap import read_charmap
 from sapply.flip import flip
 from sapply.zalgo import zalgo
 from sapply.morse import to_morse
+from sapply.tokens import to_string,parse_transforms
 from pathlib import Path
 from signal import signal, SIGPIPE, SIG_DFL
 import sys
@@ -34,6 +35,25 @@ def mapto(cmap: str):
     path    = root if Path(root).is_dir() else local
     return (read_charmap(path))
 
+def match_effects(cmd: str, text: str, opt=None) -> str:
+    out = ''
+    opt = u'\u0336' if (opt == '-') else u'\u0334' # - or ~ strikethrough
+
+    match cmd:
+        case '--sub'                        : out = convert(mapto('subscript'), text)
+        case '--super'                      : out = convert(mapto('superscript'), text)
+        case '-ds'      | '--doublestruck'  : out = convert(mapto('doubleStruck'), text)
+        case '-oe'      | '--oldeng'        : out = convert(mapto('oldEnglish'), text)
+        case '-med'     | '--medieval'      : out = convert(mapto('medieval'), text)
+        case '-mono'    | '--monospace'     : out = convert(mapto('monospace'), text)
+        case '-b'       | '--bold'          : out = convert(mapto('bold'), text)
+        case '-i'       | '--italics'       : out = convert(mapto('italic'), text)
+        case '-bs'  | '--boldsans'          : out = convert(mapto('boldSans'), text)
+        case '-ib'  | '--italicbold'        : out = convert(mapto('boldItalic'), text)
+        case '-is'  | '--italicsans'        : out = convert(mapto('italicSans'), text)
+        case '-st'  | '--strike'            : out = strikethrough(text, opt)
+    return out
+
 def main():
     cmds = ['flip', 'zalgo', 'morse']
 
@@ -56,37 +76,35 @@ def main():
         sys.exit()
 
     # Subcommands
-    # TODO: Pass `effects` off to function for processing
     match subcmd:
         case 'flip'     : flip(text)
         case 'zalgo'    : zalgo(text)
-        case 'morse'    : print(to_morse(text.upper()))
+        case 'morse'    : print(to_morse(text.upper())) # TODO: Pass `effects` off to function for processing
     if (subcmd is not None):
         return
 
     out = ""
     if (len(effects) < 2):
         cmd = effects[0]
-        match cmd:
-            case '--sub'                        : out = convert(mapto('subscript'), text)
-            case '--super'                      : out = convert(mapto('superscript'), text)
-            case '-ds'      | '--doublestruck'  : out = convert(mapto('doubleStruck'), text)
-            case '-oe'      | '--oldeng'        : out = convert(mapto('oldEnglish'), text)
-            case '-med'     | '--medieval'      : out = convert(mapto('medieval'), text)
-            case '-mono'    | '--monospace'     : out = convert(mapto('monospace'), text)
-            case '-b'       | '--bold'          : out = convert(mapto('bold'), text)
-            case '-i'       | '--italics'       : out = convert(mapto('italic'), text)
+        out = match_effects(cmd, text)
+
     elif (len(effects) < 3):
         cmd = effects[0]
         opt = effects[1]
+        if (opt is None):
+            opt = re.match(re.compile(r'-st='), cmd)
         # Handle combinable effects
         match cmd, opt:
             case '--cmap', _:
                 cmap = read_charmap(opt)
                 out = convert(cmap, text)
-            case '-b'  | '--bold'   , '-s'  | '--sans'  : out = convert(mapto('boldSans'), text)
-            case '-i'  | '--italics', '-b'  | '--bold'  : out = convert(mapto('boldItalic'), text)
-            case '-i'  | '--italics', '-s'  | '--sans'  : out = convert(mapto('italicSans'), text)
-            case '-st' | '--strike' , '-'               : out = strikethrough(text, u'\u0336')
-            case '-st' | '--strike' , '~'               : out = strikethrough(text, u'\u0334')
+            case '-f', _:
+                # opt == fp
+                token_dict = parse_transforms(opt)
+                for effect, text in token_dict.items():
+                    if (text == '\n'):
+                        out += '\n'
+                    else:
+                        out += match_effects(effect, text) + ' '
+            case _,_: out = match_effects(effect, text, opt)
     print(out)
