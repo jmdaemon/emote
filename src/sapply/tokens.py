@@ -6,7 +6,11 @@ import regex as re
 nlp = English()
 tokenizer = Tokenizer(nlp.vocab)
 
-def parse(cont: list):
+def parse(cont: list) -> dict:
+    ''' Parses a list and returns a dictionary of
+    containing the string effect to apply, and the text
+    to which it is applied to
+    '''
     tokens = {}
     regex = r'(.*?)(?=\])'
 
@@ -41,7 +45,7 @@ def read_file(fname: str) -> str:
     return res
 
 def get_tokens(fp: str):
-    '''Create list of word tokens from file'''
+    ''' Creates a list of tokens from the contents of a file '''
     conts = read_file(fp)
     my_doc = nlp(conts)
 
@@ -50,11 +54,8 @@ def get_tokens(fp: str):
         token_list.append(token.text)
     return token_list
 
-tokens: list = get_tokens(sys.argv[1])
-print(tokens)
-
-token_dict = parse(tokens)
 def to_string(token_dict: dict):
+    ''' Converts a list of tokens into a string '''
     string = ''
     i = 0
     for vals in token_dict.values():
@@ -65,6 +66,19 @@ def to_string(token_dict: dict):
             string += '\n'
         i+=1
     return string
+
+def parse_transforms(fp: str):
+    '''
+    Returns a dictionary of tokens with an effect and the text which it is applied to
+    '''
+    tokens: list = get_tokens(fp)
+    token_dict: dict = parse(tokens)
+    return token_dict
+
+tokens: list = get_tokens(sys.argv[1])
+print(tokens)
+
+token_dict = parse(tokens)
 
 token_text = to_string(token_dict)
 print (token_text)
