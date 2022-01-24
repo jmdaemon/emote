@@ -37,7 +37,7 @@ def mapto(cmap: str):
 
 def match_effects(cmd: str, text: str, opt=None) -> str:
     out = ''
-    opt = u'\u0336' if (opt == '-') else u'\u0334'
+    opt = u'\u0336' if (opt == '-') else u'\u0334' # - or ~ strikethrough
 
     match cmd:
         case '--sub'                        : out = convert(mapto('subscript'), text)
@@ -76,11 +76,10 @@ def main():
         sys.exit()
 
     # Subcommands
-    # TODO: Pass `effects` off to function for processing
     match subcmd:
         case 'flip'     : flip(text)
         case 'zalgo'    : zalgo(text)
-        case 'morse'    : print(to_morse(text.upper()))
+        case 'morse'    : print(to_morse(text.upper())) # TODO: Pass `effects` off to function for processing
     if (subcmd is not None):
         return
 

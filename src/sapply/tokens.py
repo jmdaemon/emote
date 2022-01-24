@@ -1,4 +1,5 @@
 import sys
+from wora.file import read_file
 from spacy.tokenizer import Tokenizer
 from spacy.lang.en import English
 import regex as re
@@ -28,21 +29,12 @@ def parse(cont: list) -> dict:
             if (start1 == 0):
                 start1 = i
                 keyword = cont[i]
-                print(keyword)
             else:
                 start2 = i
         if x == ']':
             end = i
         i += 1
-    print(tokens)
     return tokens
-
-
-def read_file(fname: str) -> str:
-    file = open(fname, 'r')
-    res = file.read()
-    file.close()
-    return res
 
 def get_tokens(fp: str):
     ''' Creates a list of tokens from the contents of a file '''
@@ -62,7 +54,6 @@ def to_string(token_dict: dict):
         if (vals != '\n'):
             string += ' '.join(vals)
         else:
-            print(vals)
             string += '\n'
         i+=1
     return string
@@ -74,8 +65,3 @@ def parse_transforms(fp: str):
     tokens: list = get_tokens(fp)
     token_dict: dict = parse(tokens)
     return token_dict
-
-# token_dict = parse_transforms(sys.argv[1])
-# print(token_dict)
-# token_text = to_string(token_dict)
-# print(token_text)
