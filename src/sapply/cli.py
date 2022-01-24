@@ -37,6 +37,8 @@ def mapto(cmap: str):
 
 def match_effects(cmd: str, text: str, opt=None) -> str:
     out = ''
+    opt = u'\u0336' if (opt == '-') else u'\u0334'
+
     match cmd:
         case '--sub'                        : out = convert(mapto('subscript'), text)
         case '--super'                      : out = convert(mapto('superscript'), text)
@@ -46,6 +48,10 @@ def match_effects(cmd: str, text: str, opt=None) -> str:
         case '-mono'    | '--monospace'     : out = convert(mapto('monospace'), text)
         case '-b'       | '--bold'          : out = convert(mapto('bold'), text)
         case '-i'       | '--italics'       : out = convert(mapto('italic'), text)
+        case '-bs'  | '--boldsans'          : out = convert(mapto('boldSans'), text)
+        case '-ib'  | '--italicbold'        : out = convert(mapto('boldItalic'), text)
+        case '-is'  | '--italicsans'        : out = convert(mapto('italicSans'), text)
+        case '-st'  | '--strike'            : out = strikethrough(text, opt)
     return out
 
 def main():
@@ -86,6 +92,8 @@ def main():
     elif (len(effects) < 3):
         cmd = effects[0]
         opt = effects[1]
+        if (opt is None):
+            opt = re.match(re.compile(r'-st='), cmd)
         # Handle combinable effects
         match cmd, opt:
             case '--cmap', _:
@@ -99,9 +107,5 @@ def main():
                         out += '\n'
                     else:
                         out += match_effects(effect, text) + ' '
-            case '-b'  | '--bold'   , '-s'  | '--sans'  : out = convert(mapto('boldSans'), text)
-            case '-i'  | '--italics', '-b'  | '--bold'  : out = convert(mapto('boldItalic'), text)
-            case '-i'  | '--italics', '-s'  | '--sans'  : out = convert(mapto('italicSans'), text)
-            case '-st' | '--strike' , '-'               : out = strikethrough(text, u'\u0336')
-            case '-st' | '--strike' , '~'               : out = strikethrough(text, u'\u0334')
+            case _,_: out = match_effects(effect, text, opt)
     print(out)

@@ -75,10 +75,7 @@ def parse_transforms(fp: str):
     token_dict: dict = parse(tokens)
     return token_dict
 
-tokens: list = get_tokens(sys.argv[1])
-print(tokens)
-
-token_dict = parse(tokens)
-
-token_text = to_string(token_dict)
-print (token_text)
+# token_dict = parse_transforms(sys.argv[1])
+# print(token_dict)
+# token_text = to_string(token_dict)
+# print(token_text)
