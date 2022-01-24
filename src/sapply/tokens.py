@@ -1,4 +1,3 @@
-# import wora.file
 import sys
 from spacy.tokenizer import Tokenizer
 from spacy.lang.en import English
@@ -7,18 +6,32 @@ import regex as re
 nlp = English()
 tokenizer = Tokenizer(nlp.vocab)
 
-def parse(cont: str):
+def parse(cont: list):
     tokens = {}
-    # keyword: string
+    regex = r'(.*?)(?=\])'
+
     i = 0
+    keyword = ''
+    start1 = 0
+    start2 = 0
+    end = 0
     while i < len(cont):
         x = cont[i]
         if x == '[':
-            print(cont[i+1])
+            if re.match(re.compile('/'), cont[i+1]):
+                tokens[keyword] = cont[start1+2:start2+1]
+        else:
+            if (start1 == 0):
+                start1 = i
+                keyword = cont[i]
+                print(keyword)
+            else:
+                start2 = i
         if x == ']':
-            print(cont[i])
-            # tokens.append(cont[i:]: cont[)
+            end = i
         i += 1
+    print(tokens)
+    return tokens
 
 
 def read_file(fname: str) -> str:
@@ -29,12 +42,29 @@ def read_file(fname: str) -> str:
 
 def get_tokens(fp: str):
     '''Create list of word tokens from file'''
-    my_doc = nlp(read_file(fp))
+    conts = read_file(fp)
+    my_doc = nlp(conts)
 
     token_list = []
     for token in my_doc:
         token_list.append(token.text)
     return token_list
+
 tokens: list = get_tokens(sys.argv[1])
 print(tokens)
-print(parse(tokens))
+
+token_dict = parse(tokens)
+def to_string(token_dict: dict):
+    string = ''
+    i = 0
+    for vals in token_dict.values():
+        if (vals != '\n'):
+            string += ' '.join(vals)
+        else:
+            print(vals)
+            string += '\n'
+        i+=1
+    return string
+
+token_text = to_string(token_dict)
+print (token_text)
