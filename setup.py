@@ -23,7 +23,7 @@ setup(
     packages=find_packages(where='src'),
     python_requires='>=3.6',
     py_modules=['sapply.charmap'],
-    install_requires=['wora', 'spacy'],
+    install_requires=['wora', 'spacy', 'regex'],
     include_package_data=True,
     zip_safe=False,
     entry_points={
