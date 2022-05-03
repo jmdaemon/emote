@@ -4,9 +4,9 @@ verify_ssl = true
 name = "pypi"
 
 [packages]
+sapply = {editable = true, path = "."}
 wora = "*"
 spacy = "*"
-sapply = "*"
 regex = "*"
 
 [dev-packages]
