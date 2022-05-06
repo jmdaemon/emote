@@ -21,6 +21,7 @@ setup(
     ],
     package_dir={'': 'src'},
     packages=find_packages(where='src'),
+    package_data={'': ['*.json']},
     python_requires='>=3.6',
     py_modules=['sapply.charmap', 'sapply.cli', 'sapply.flip', 'sapply.zalgo',
                'sapply.morse', 'sapply.tokens', 'sapply.cmapdefs'],
