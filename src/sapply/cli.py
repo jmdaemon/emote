@@ -1,15 +1,19 @@
+# Sapply libraries
 from sapply.cmapdefs import cmapdefs
 from sapply.charmap import read_charmap, to_charmap
 from sapply.flip import flip
 from sapply.zalgo import zalgo
 from sapply.morse import to_morse
 from sapply.tokens import to_string,parse_transforms
-from pathlib import Path
-from signal import signal, SIGPIPE, SIG_DFL
-from pkg_resources import resource_string,resource_stream, resource_listdir
+
+# Standard library
+import os
 import re
 import sys
-import site
+import logging
+# from pathlib import Path
+from pkg_resources import resource_string
+from signal import signal, SIGPIPE, SIG_DFL
 
 signal(SIGPIPE, SIG_DFL)
 
@@ -31,18 +35,8 @@ def strikethrough(text, strikeover):
 
 def mapto(cmap: str):
     file = cmapdefs[cmap]
-    # form = lambda sitefp: Path(f'{sitefp}/sapply').expanduser()
-    # root    = f'{form(site.getsitepackages())}/resources/{file}'
-    # local   = f'{form(site.getusersitepackages())}/resources/{file}'
-    # path    = root if Path(root).is_dir() else local
-    # path = resource_string('sapply.resources', file)
-
-    # path = str(resource_stream('sapply.resources', file).read())
-    # conts = str(resource_stream('sapply.resources', file).read())
-    print(f'resources dir: {resource_listdir("sapply.resources", "")}')
     conts = resource_string('sapply.resources', file)
     print(f'conts: {conts}')
-    # return (read_charmap(path))
     return (to_charmap(conts))
 
 def match_effects(cmd: str, text: str, opt=None) -> str:
@@ -66,6 +60,10 @@ def match_effects(cmd: str, text: str, opt=None) -> str:
     return out
 
 def main():
+    loglevel = os.environ.get("LOGLEVEL")
+    loglevel = loglevel if loglevel is not None else logging.ERROR
+    logging.basicConfig(level=loglevel)
+
     cmds = ['flip', 'zalgo', 'morse']
 
     subcmd = None
