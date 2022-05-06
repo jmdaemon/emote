@@ -5,7 +5,6 @@ with open('README.md', 'r', encoding='utf-8') as fh:
 
 setup(
     name='sapply',
-    version='0.1.9',
     license='MIT',
     author='Joseph Diza',
     author_email='josephm.diza@gmail.com',

@@ -5,19 +5,17 @@ from sapply.flip import flip
 from sapply.zalgo import zalgo
 from sapply.morse import to_morse
 from sapply.tokens import to_string,parse_transforms
+from sapply import __version__
 
 # Standard library
 import os
 import re
 import sys
 import logging
-# from pathlib import Path
 from pkg_resources import resource_string
 from signal import signal, SIGPIPE, SIG_DFL
 
 signal(SIGPIPE, SIG_DFL)
-
-MAJOR, MINOR, PATCH = '0', '1', '0'
 
 def convert(char_map, text):
     out = ""
@@ -70,9 +68,14 @@ def main():
     text = None
     effects = None
 
+    i = 0
     for cmd in cmds:
         if cmd in sys.argv:
             subcmd = cmd
+        if sys.argv[i] == "-v":
+            print(f'sapply v{__version__}')
+            exit(0)
+        i += 1
 
     if subcmd is None:
         text = sys.argv[1]
