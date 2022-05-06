@@ -6,6 +6,7 @@ from sapply.morse import to_morse
 from sapply.tokens import to_string,parse_transforms
 from pathlib import Path
 from signal import signal, SIGPIPE, SIG_DFL
+import re
 import sys
 import site
 
