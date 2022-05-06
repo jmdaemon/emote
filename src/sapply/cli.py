@@ -36,13 +36,13 @@ def strikethrough(text, strikeover):
 def mapto(cmap: str):
     file = cmapdefs[cmap]
     conts = resource_string('sapply.resources', file)
-    print(f'conts: {conts}')
+    logging.debug(f'Resource File Contents:\n{conts}')
     return (to_charmap(conts))
 
 def match_effects(cmd: str, text: str, opt=None) -> str:
     out = ''
     opt = u'\u0336' if (opt == '-') else u'\u0334' # - or ~ strikethrough
-    print('In match_effects')
+    logging.debug('In match_effects:')
 
     match cmd:
         case '--sub'                        : out = convert(mapto('subscript'), text)
@@ -81,6 +81,10 @@ def main():
         text    = sys.argv[2]
         effects = sys.argv[3:]
 
+    logging.info(f'Subcommand   : {subcmd}')
+    logging.info(f'Text         : {text}')
+    logging.info(f'Effects      : {effects}')
+
     if not text:
         sys.exit()
 
@@ -89,22 +93,20 @@ def main():
         case 'flip'     : flip(text)
         case 'zalgo'    : zalgo(text)
         case 'morse'    : print(to_morse(text.upper())) # TODO: Pass `effects` off to function for processing
-    # if (subcmd is not None):
-        # return
-    print("After subcmd")
 
-    out = ""
+    out = ''
     if (len(effects) < 2):
-        print("In first effects block")
+        logging.debug('Non-combinable effect')
         cmd = effects[0]
-        print(f'cmd: {cmd}')
-        print(f'text: {text}')
         out = match_effects(cmd, text)
-        print(f"out: {out}")
+        logging.debug(f'Effect: {cmd}')
 
     elif (len(effects) < 3):
+        logging.debug('Combinable effect')
         cmd = effects[0]
         opt = effects[1]
+        logging.debug(f'Effect: {cmd}')
+        logging.debug(f'Option: {opt}')
         if (opt is None):
             opt = re.match(re.compile(r'-st='), cmd)
         # Handle combinable effects
