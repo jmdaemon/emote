@@ -6,9 +6,6 @@ def to_charmap(jstr: str) -> dict:
     data = json.loads(jstr)
     return data
 
-def read_charmap(conts: str) -> dict:
-    return(to_charmap(wora.file.read_file(conts)))
-
 # Convert character maps to json
 def to_json(charmap: dict) -> str:
     ''' Converts a dictionary charmap to json '''

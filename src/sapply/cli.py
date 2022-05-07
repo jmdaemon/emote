@@ -1,6 +1,6 @@
 # Sapply libraries
 from sapply.cmapdefs import cmapdefs
-from sapply.charmap import read_charmap, to_charmap
+from sapply.charmap import to_charmap
 from sapply.flip import flip
 from sapply.zalgo import zalgo
 from sapply.morse import to_morse
