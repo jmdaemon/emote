@@ -18,6 +18,7 @@ from signal import signal, SIGPIPE, SIG_DFL
 signal(SIGPIPE, SIG_DFL)
 
 def convert(char_map, text):
+    ''' Convert characters from ASCII to a specific unicode character map '''
     out = ""
     for char in text:
         if char in char_map:
@@ -29,15 +30,18 @@ def convert(char_map, text):
     return out
 
 def strikethrough(text, strikeover):
+    ''' Converts ASCII characters into unicode 'striked' characters '''
     return ''.join([char + strikeover for char in text])
 
 def mapto(cmap: str):
+    ''' Maps ASCII characters to a unicode character map '''
     file = cmapdefs[cmap]
     conts = resource_string('sapply.resources', file)
     logging.debug(f'Resource File Contents:\n{conts}')
     return (to_charmap(conts))
 
 def match_effects(cmd: str, text: str, opt=None) -> str:
+    ''' Applies unicode character mappings to ASCII text '''
     out = ''
     opt = u'\u0336' if (opt == '-') else u'\u0334' # - or ~ strikethrough
     logging.debug('In match_effects:')
