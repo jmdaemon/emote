@@ -58,6 +58,13 @@ def match_effects(cmd: str, text: str, opt=None) -> str:
     return out
 
 def main():
+    ''' Main application entry point
+
+    Usage:
+        sapply asdf -i
+        sapply asdf -is
+        sapply asdf -cmap ./cmap.json
+    '''
     loglevel = os.environ.get("LOGLEVEL")
     loglevel = loglevel if loglevel is not None else logging.ERROR
     logging.basicConfig(level=loglevel)
