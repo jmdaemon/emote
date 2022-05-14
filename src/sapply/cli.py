@@ -7,15 +7,17 @@ from sapply.morse import to_morse
 from sapply.tokens import to_string,parse_transforms
 from sapply import __version__
 
+# Third Party Libraries
+from wora.cli import reset_sigpipe_handling
+
 # Standard library
 import os
 import re
 import sys
 import logging
 from pkg_resources import resource_string
-from signal import signal, SIGPIPE, SIG_DFL
 
-signal(SIGPIPE, SIG_DFL)
+reset_sigpipe_handling()
 
 def convert(char_map, text):
     ''' Convert characters from ASCII to a specific unicode character map '''
