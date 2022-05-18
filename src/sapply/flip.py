@@ -117,7 +117,7 @@ flipTableHTML = {
 }
 
 
-def flip(text, backwards=True, upside_down=True, convert_html=False):
+def flip(text, backwards=True, upside_down=True, convert_html=False) -> str:
     txt = ''
     html = ''
 
