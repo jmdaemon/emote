@@ -113,6 +113,10 @@ def main():
         case 'flip'     : show(flip(text))
         case 'zalgo'    : show(zalgo(text))
         case 'morse'    : show(to_morse(text.upper())) # TODO: Pass `effects` off to function for processing
+    # If a subcommand is used
+    if subcmd is not None:
+        # Exit early
+        return
 
     out = ''
     if (len(effects) < 2):
