@@ -139,4 +139,4 @@ def main():
                     else:
                         out += match_effects(effect, text) + ' '
             case _,_: out = match_effects(effect, text, opt)
-    print(out)
+    print(out, end="") # Strip newlines from text
