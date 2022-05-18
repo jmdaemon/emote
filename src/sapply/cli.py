@@ -63,6 +63,10 @@ def match_effects(cmd: str, text: str, opt=None) -> str:
         case '-st'  | '--strike'            : out = strikethrough(text, opt)
     return out
 
+def show(text: str):
+    ''' Displays the mapped text without the newline ending '''
+    print(text, end='\0') # Strip newlines from text
+
 def main():
     ''' Main application entry point
 
@@ -106,9 +110,9 @@ def main():
 
     # Subcommands
     match subcmd:
-        case 'flip'     : print(flip(text))
-        case 'zalgo'    : print(zalgo(text))
-        case 'morse'    : print(to_morse(text.upper())) # TODO: Pass `effects` off to function for processing
+        case 'flip'     : show(flip(text))
+        case 'zalgo'    : show(zalgo(text))
+        case 'morse'    : show(to_morse(text.upper())) # TODO: Pass `effects` off to function for processing
 
     out = ''
     if (len(effects) < 2):
@@ -139,4 +143,4 @@ def main():
                     else:
                         out += match_effects(effect, text) + ' '
             case _,_: out = match_effects(effect, text, opt)
-    print(out, end='\0') # Strip newlines from text
+    show(out)
