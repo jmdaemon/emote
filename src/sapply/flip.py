@@ -150,6 +150,7 @@ def flip(text, backwards=True, upside_down=True, convert_html=False):
         txt += flipped
         if (convert_html and not did_convert_html):
             html += (flipTableHTML.get(flipped) or HTMLTable.get(flipped) or flipped);
-    print(txt)
     if html != '':
-        print(html)
+        return html
+    else:
+        return txt

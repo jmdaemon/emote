@@ -106,7 +106,8 @@ def main():
 
     # Subcommands
     match subcmd:
-        case 'flip'     : flip(text)
+        # case 'flip'     : flip(text)
+        case 'flip'     : print(flip(text))
         case 'zalgo'    : zalgo(text)
         case 'morse'    : print(to_morse(text.upper())) # TODO: Pass `effects` off to function for processing
 
