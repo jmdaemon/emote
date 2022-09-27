@@ -1,10 +1,9 @@
 # Sapply libraries
-from sapply.cmapdefs import cmapdefs
-from sapply.charmap import to_charmap
+from sapply.cmap import cmapdefs, to_charmap
 from sapply.flip import flip
 from sapply.zalgo import zalgo
 from sapply.morse import to_morse
-from sapply.tokens import to_string,parse_transforms
+from sapply.tokens import parse_transforms
 from sapply import __version__
 
 # Third Party Libraries
