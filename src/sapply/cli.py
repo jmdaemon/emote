@@ -9,13 +9,10 @@ from sapply import __version__
 
 # Third Party Libraries
 from wora.cli import reset_sigpipe_handling
+from loguru import logger
 
 # Standard library
-import os
-import re
-import sys
-import logging
-from pkg_resources import resource_string
+import pkg_resources, os, re, sys
 
 reset_sigpipe_handling()
 
@@ -38,15 +35,15 @@ def strikethrough(text, strikeover):
 def mapto(cmap: str):
     ''' Maps ASCII characters to a unicode character map '''
     file = cmapdefs[cmap]
-    conts = resource_string('sapply.resources', file)
-    logging.debug(f'Resource File Contents:\n{conts}')
+    conts = pkg_resources.resource_string('sapply.resources', file)
+    logger.debug(f'Resource File Contents:\n{conts}')
     return (to_charmap(conts))
 
 def match_effects(cmd: str, text: str, opt=None) -> str:
     ''' Applies unicode character mappings to ASCII text '''
     out = ''
     opt = u'\u0336' if (opt == '-') else u'\u0334' # - or ~ strikethrough
-    logging.debug('In match_effects:')
+    logger.debug('In match_effects:')
 
     match cmd:
         case '--sub'                        : out = convert(mapto('subscript'), text)
@@ -75,9 +72,11 @@ def main():
         sapply asdf -is
         sapply asdf -cmap ./cmap.json
     '''
-    loglevel = os.environ.get("LOGLEVEL")
-    loglevel = loglevel if loglevel is not None else logging.ERROR
-    logging.basicConfig(level=loglevel)
+    logger.remove() # Override default logger
+    # Format: [2022-09-01 23:36:01.792] [DEBUG] [bin_name.main:150] Hello!
+    PROGRAM_LOG_MSG_FORMAT = '\x1b[0m\x1b[32m[{time:YYYY-MM-DD HH:mm:ss.SSS}]\x1b[0m [<lvl>{level}</>] [<c>{name}:{line}</>] {message}'
+    loglevel = 'ERROR' if os.environ.get('LOGLEVEL') is None else os.environ.get('LOGLEVEL')
+    logger.add(sys.stdout, format=PROGRAM_LOG_MSG_FORMAT, level=loglevel)
 
     cmds = ['flip', 'zalgo', 'morse']
 
@@ -101,9 +100,9 @@ def main():
         text    = sys.argv[2]
         effects = sys.argv[3:]
 
-    logging.info(f'Subcommand   : {subcmd}')
-    logging.info(f'Text         : {text}')
-    logging.info(f'Effects      : {effects}')
+    logger.info(f'Subcommand   : {subcmd}')
+    logger.info(f'Text         : {text}')
+    logger.info(f'Effects      : {effects}')
 
     if not text:
         sys.exit()
@@ -120,17 +119,17 @@ def main():
 
     out = ''
     if (len(effects) < 2):
-        logging.debug('Non-combinable effect')
+        logger.debug('Non-combinable effect')
         cmd = effects[0]
         out = match_effects(cmd, text)
-        logging.debug(f'Effect: {cmd}')
+        logger.debug(f'Effect: {cmd}')
 
     elif (len(effects) < 3):
-        logging.debug('Combinable effect')
+        logger.debug('Combinable effect')
         cmd = effects[0]
         opt = effects[1]
-        logging.debug(f'Effect: {cmd}')
-        logging.debug(f'Option: {opt}')
+        logger.debug(f'Effect: {cmd}')
+        logger.debug(f'Option: {opt}')
         if (opt is None):
             opt = re.match(re.compile(r'-st='), cmd)
         # Handle combinable effects

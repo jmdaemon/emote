@@ -8,6 +8,7 @@ sapply = {editable = true, path = "."}
 wora = "*"
 spacy = "*"
 regex = "*"
+loguru = "*"
 
 [dev-packages]
 
