@@ -39,15 +39,13 @@ setup(
     packages=find_packages(where='src'),
     package_data={'': ['*.json']},
     python_requires='>=3.6',
-    py_modules=['sapply.charmap', 'sapply.cli', 'sapply.flip', 'sapply.zalgo',
-               'sapply.morse', 'sapply.tokens', 'sapply.cmapdefs'],
-    install_requires=['wora', 'spacy', 'regex'],
+    install_requires=['wora', 'spacy', 'regex', 'loguru'],
     include_package_data=True,
     zip_safe=False,
     entry_points={
         'console_scripts': [
-            'sapply = sapply.cli:main',
+            'sapply = sapply.main:main',
         ],
     },
-    test_suite='tests',
+    test_suite='test',
 )

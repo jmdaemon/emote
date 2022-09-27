@@ -4,11 +4,11 @@ verify_ssl = true
 name = "pypi"
 
 [packages]
-sapply = {editable = true, path = "."}
 wora = "*"
 spacy = "*"
 regex = "*"
 loguru = "*"
+sapply = {editable = true, path = "."}
 
 [dev-packages]
 
