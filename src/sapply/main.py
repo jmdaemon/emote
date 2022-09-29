@@ -27,7 +27,7 @@ reset_sigpipe_handling()
 
 def convert(char_map, text):
     ''' Convert characters from ASCII to a specific unicode character map '''
-    out = ""
+    out = ''
     for char in text:
         if char in char_map:
             out += char_map[char]
@@ -63,56 +63,10 @@ class Option():
         if long != None:
             self.id = long[1:]
 
-class Command():
-    # Commands
-    # Should be able to:
-        # - Specify their own arguments, options, further subcommands
-        # - Specify and execute custom callback with their specified options
-        # - Embed themselves in other commands
-    def __init__(self, invoke: str, options: list[Option], callback: typing.Callable, help=''):
-        self.invoke = invoke
-        self.callback = callback
-        self.options = options
+class ArgParser():
+    def __init__(self, argp_args: list, help='', *args, **kwargs):
+        self.args = argp_args
         self.help = help
-
-        # Initialize the keywords for easy matching
-        self.keynames: dict = {}
-        for arg in self.options:
-            if isinstance(arg, Command):
-                self.keynames[arg.invoke] = arg
-            elif isinstance(arg, Option):
-                self.keynames[arg.id] = arg
-        self.keyvalues: dict = {}
-        self.arguments = []
-
-    def parse(self, argv):
-        index = 0
-        for argv in argv:
-            if self.keynames.__contains__(argv):
-                arg: Command | Option = self.keynames[argv]
-                if isinstance(arg, Command):
-                    if arg.callback != None:
-                        arg.callback()
-                    else:
-                        arg.parse(argv[index:])
-                elif isinstance(arg, Option):
-                    # Set the value of the option if any
-                    # If option == flag, toggle flag value
-                    # Set option in main 
-                    if arg.flag:
-                        self.keyvalues[arg.id] = True
-                    else:
-                        self.keyvalues[arg.id] = arg.val
-                else:
-                    # Assume we are only left with an argument
-                    self.arguments.append(arg)
-            index += 1
-
-class Argp:
-    def __init__(self, args: list, description=''):
-        self.args = args
-        self.argv = sys.argv[1:]
-        self.description = description
 
         # Initialize the keywords for easy matching
         self.keynames: dict = {}
@@ -124,30 +78,28 @@ class Argp:
                 # self.keynames[arg.id] = arg
                 self.keynames[arg.short] = arg
 
-        print(self.keynames)
-
-        # Stores the values of the options
+        # Stores the values of the options & arguments
         self.keyvalues: dict = {}
         self.arguments = []
 
-    def parse(self):
+    def parse(self, argvs: list):
         index = 1
-        for argv in self.argv:
-            print(argv)
+        logger.info('Parsing arguments')
+        for argv in argvs:
+            logger.debug(f'argv: {argv}')
             if self.keynames.__contains__(argv):
-                print("Running")
                 arg: Command | Option = self.keynames[argv]
-                print(f"arg: {arg}")
+                logger.debug(f'arg: {arg}')
                 if isinstance(arg, Command):
-                    print("Argument is a Command")
+                    logger.info('Argument is Command')
                     if arg.callback != None:
                         arg.callback()
                     else:
                         # TODO: Recursively parse the damn thing
-                        arg.parse(self.argv[index:])
+                        arg.parse(argv[index:])
                     continue
                 elif isinstance(arg, Option):
-                    print("Argument is an Option")
+                    logger.info('Argument is Option')
                     # Set the value of the option if any
                     # If option == flag, toggle flag value
                     # Set option in main 
@@ -159,11 +111,34 @@ class Argp:
                          # self.keyvalues[arg.short] = argv
                     continue
             else:
-                print("Argument is an Argument")
                 # Assume we are only left with an argument
-                print("Initializing arg")
+                logger.info('Argument is an Argument')
                 self.arguments.append(argv)
             index += 1
+
+class Command(ArgParser):
+    # Commands
+    # Should be able to:
+        # - Specify their own arguments, options, further subcommands
+        # - Specify and execute custom callback with their specified options
+        # - Embed themselves in other commands
+    def __init__(self, invoke: str, argp_args: list, callback: typing.Callable, help='', *args, **kwargs):
+        super().__init__(argp_args)
+        self.invoke = invoke
+        self.callback = callback
+        self.help = help
+
+    def parse(self):
+        super().parse(self.argv)
+
+class Argp(ArgParser):
+    def __init__(self, args: list, description=''):
+        super().__init__(args)
+        self.argv = sys.argv[1:]
+        self.description = description
+
+    def parse(self):
+        super().parse(self.argv)
 
 def match_effects(cmd: str, text: str, opt=None) -> str:
     ''' Applies unicode character mappings to ASCII text '''
@@ -238,7 +213,7 @@ def main():
     argp = Argp(options, description=PROGRAM_DESCRIPTION)
     argp.parse()
 
-    print(argp.keyvalues)
+    logger.debug(f'argp.keyvalues: {argp.keyvalues}')
     text = argp.arguments[0]
 
     out: str = ''
@@ -259,7 +234,7 @@ def main():
     # for cmd in cmds:
         # if cmd in sys.argv:
             # subcmd = cmd
-        # if sys.argv[i] == "-v":
+        # if sys.argv[i] == '-v':
             # print(f'sapply v{__version__}')
             # exit(0)
         # i += 1
