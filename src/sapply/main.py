@@ -117,15 +117,9 @@ def main():
     argp.parse()
 
     text = argp.arguments[0]
-    logger.debug(f'text: {text}')
 
     out: str = ''
-    # for key, _ in argp.keyvalues.items():
-    for _, val in argp.keyvalues.items():
-        # print(key)
-        # out = match_effects(key, text)
-        # print(val)
-        # out = match_effects(argp.keyvalues[key], text)
+    for _, val in argp.arg_vals.items():
         key_id = val.short
         out = match_effects(key_id, text)
     show(out)

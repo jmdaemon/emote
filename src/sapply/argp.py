@@ -40,25 +40,24 @@ class ArgParser():
 
         # Initialize the keywords for easy matching
         self.arguments = []
-        self.keynames: dict = {}
-        self.keyvalues: dict = {}
+        self.arg_defs: dict = {}
+        self.arg_vals: dict = {}
         for arg in self.args:
-            self.keynames[arg.id] = arg
+            self.arg_defs[arg.id] = arg
 
         # Stores the values of the options & arguments
 
-    def get_id(self, iden):
+    def get_id(self, id):
         # Test for short option
-        invoke = iden
-        long = iden[1:]
-        short = iden[0:]
+        long = id[1:]
+        short = id[0:]
         result: Command | Option | str
-        if self.keynames.__contains__(invoke):
-            result = self.keynames[invoke]
-        if self.keynames.__contains__(long):
-            result = self.keynames[long]
-        elif self.keynames.__contains__(short):
-            result = self.keynames[short]
+        if self.arg_defs.__contains__(id):
+            result = self.arg_defs[id]
+        if self.arg_defs.__contains__(long):
+            result = self.arg_defs[long]
+        elif self.arg_defs.__contains__(short):
+            result = self.arg_defs[short]
         else:
             result = 'Argument ID Not Found'
         return result
@@ -79,7 +78,7 @@ class ArgParser():
                     arg.parse(argv[index:])
             elif isinstance(arg, Option):
                 logger.debug('Is Option')
-                self.keyvalues[arg.id] = True if arg.is_flag() else arg
+                self.arg_vals[arg.id] = True if arg.is_flag() else arg
             else:
                 # Assume we are only left with an argument
                 logger.debug('Is Argument')
