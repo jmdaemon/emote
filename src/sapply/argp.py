@@ -20,10 +20,18 @@ class Option():
         self.val = val
         self.help = help
 
-        # Default setting of id
-        # TODO: Chop off the leading -- for long options properly
-        if long != None:
-            self.id = long[1:]
+        self.set_id()
+
+    def set_id(self):
+        ''' Sets the option id from the longname specifier
+        and defaults to the shortname if not specified '''
+        if self.long[0:1] == '--':
+            self.id = self.long[1:]
+        else:
+            self.id = self.short[1:]
+
+    def is_flag(self):
+        return True if self.flag else False
 
 class ArgParser():
     def __init__(self, argp_args: list, help='', *args, **kwargs):
@@ -52,6 +60,7 @@ class ArgParser():
             if self.keynames.__contains__(argv):
                 arg: Command | Option = self.keynames[argv]
                 logger.debug(f'arg: {arg}')
+
                 if isinstance(arg, Command):
                     logger.info('Argument is Command')
                     if arg.callback != None:
@@ -60,12 +69,13 @@ class ArgParser():
                         # TODO: Recursively parse the damn thing
                         arg.parse(argv[index:])
                     continue
+
                 elif isinstance(arg, Option):
                     logger.info('Argument is Option')
                     # Set the value of the option if any
                     # If option == flag, toggle flag value
                     # Set option in main 
-                    if arg.flag:
+                    if arg.is_flag():
                         self.keyvalues[arg.id] = True
                     else:
                         # self.keyvalues[arg.id] = arg.val

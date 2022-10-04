@@ -116,7 +116,6 @@ def main():
     argp = build_cli()
     argp.parse()
 
-    logger.debug(f'argp.keyvalues: {argp.keyvalues}')
     text = argp.arguments[0]
 
     out: str = ''
