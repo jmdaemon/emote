@@ -1,16 +1,6 @@
 from loguru import logger
 import typing, sys
-# Reasons why I don't like argparse
-# usage and other names aren't capitalized.
-# cannot accept '-' or '--' as arguments 
-# only one operation/subcommand can be processed at a time
 
-# Reasons why I don't like custom parsing
-# no help/usage string
-# awkward inputs and input handling
-# lack of code reuse between projects
-
-# Argp
 class Option():
     def __init__(self, short: str, long: str, val='', flag=False, id='', help=''):
         self.id = id
@@ -32,6 +22,7 @@ class Option():
 
     def is_flag(self):
         return True if self.flag else False
+
 
 class ArgParser():
     def __init__(self, argp_args: list, help='', *args, **kwargs):
@@ -74,7 +65,6 @@ class ArgParser():
                 if arg.callback != None:
                     arg.callback()
                 else:
-                    # TODO: Recursively parse the damn thing
                     arg.parse(argv[index:])
             elif isinstance(arg, Option):
                 logger.debug('Is Option')
@@ -86,17 +76,35 @@ class ArgParser():
             index += 1
 
 class Command(ArgParser):
-    # Commands
-    # Should be able to:
-        # - Specify their own arguments, options, further subcommands
-        # - Specify and execute custom callback with their specified options
-        # - Embed themselves in other commands
+    ''' Execute CLI Subcommands
+    Commands should be able to:
+        - Have separate options, arguments, flags, subcommands separate from the main program.
+        - Execute callback functions
+    '''
     def __init__(self, id: str, argp_args: list, callback: typing.Callable, help='', *args, **kwargs):
         super().__init__(argp_args)
         self.id = id
         self.callback = callback
         self.help = help
 
+'''
+Highly customizeable cli arguments parser
+
+This argument parsing library was created to address flaws in argparse,
+and direct parsing from sys.argv.
+
+Some gripes that I've found when using argparse are:
+    - Usage and other docstring names aren't capitalized, and are unable to be modified.
+    - Does not accept '-' or '--' as valid arguments (arguments will be "unknown" and will show the usage message)
+    - Only one subcommand/callback can be executed
+
+When doing direct custom parsing from sys.argv:
+    - Lots of tedious work to check inputs
+    - No help/usage string by default
+    - Awkward inputs & input handling
+    - Specific to your project/no code reuse between programs
+
+'''
 class Argp(ArgParser):
     def __init__(self, args: list, description=''):
         super().__init__(args)
@@ -105,4 +113,3 @@ class Argp(ArgParser):
 
     def parse(self):
         super().parse(self.argv)
-
