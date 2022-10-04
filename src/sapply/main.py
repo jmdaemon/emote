@@ -117,7 +117,7 @@ def main():
     argp.parse()
 
     text = argp.arguments[0]
-    logger.info(f'text: {text}')
+    logger.debug(f'text: {text}')
 
     out: str = ''
     # for key, _ in argp.keyvalues.items():
@@ -129,77 +129,4 @@ def main():
         key_id = val.short
         out = match_effects(key_id, text)
     show(out)
-        # print(key)
-        # print(val)
-        # key_id = argp.get_id(key).short
-        # out = match_effects(argp.keyvalues[key_id], text)
-    # Apply only the last effect specified
-    # cmds = ['flip', 'zalgo', 'morse']
 
-    # subcmd = None
-    # text = None
-    # effects = None
-
-    # i = 0
-    # for cmd in cmds:
-        # if cmd in sys.argv:
-            # subcmd = cmd
-        # if sys.argv[i] == '-v':
-            # print(f'sapply v{__version__}')
-            # exit(0)
-        # i += 1
-
-    # if subcmd is None:
-        # text = sys.argv[1]
-        # effects = sys.argv[2:]
-    # else:
-        # text    = sys.argv[2]
-        # effects = sys.argv[3:]
-
-    # logger.info(f'Subcommand   : {subcmd}')
-    # logger.info(f'Text         : {text}')
-    # logger.info(f'Effects      : {effects}')
-
-    # if not text:
-        # sys.exit()
-
-    # # Subcommands
-    # match subcmd:
-        # case 'flip'     : show(flip(text))
-        # case 'zalgo'    : show(zalgo(text))
-        # case 'morse'    : show(to_morse(text.upper())) # TODO: Pass `effects` off to function for processing
-    # # If a subcommand is used
-    # if subcmd is not None:
-        # # Exit early
-        # return
-
-    # out = ''
-    # if (len(effects) < 2):
-        # logger.debug('Non-combinable effect')
-        # cmd = effects[0]
-        # out = match_effects(cmd, text)
-        # logger.debug(f'Effect: {cmd}')
-
-    # elif (len(effects) < 3):
-        # logger.debug('Combinable effect')
-        # cmd = effects[0]
-        # opt = effects[1]
-        # logger.debug(f'Effect: {cmd}')
-        # logger.debug(f'Option: {opt}')
-        # if (opt is None):
-            # opt = re.match(re.compile(r'-st='), cmd)
-        # # Handle combinable effects
-        # match cmd, opt:
-            # case '--cmap', _:
-                # cmap = read_charmap(opt)
-                # out = convert(cmap, text)
-            # case '-f', _:
-                # # opt == fp
-                # token_dict = parse_transforms(opt)
-                # for effect, text in token_dict.items():
-                    # if (text == '\n'):
-                        # out += '\n'
-                    # else:
-                        # out += match_effects(effect, text) + ' '
-            # case _,_: out = match_effects(effect, text, opt)
-    # show(out)
