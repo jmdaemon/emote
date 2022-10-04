@@ -117,14 +117,22 @@ def main():
     argp.parse()
 
     text = argp.arguments[0]
+    logger.info(f'text: {text}')
 
     out: str = ''
     # for key, _ in argp.keyvalues.items():
-    for key, val in argp.keyvalues.items():
+    for _, val in argp.keyvalues.items():
+        # print(key)
+        # out = match_effects(key, text)
+        # print(val)
+        # out = match_effects(argp.keyvalues[key], text)
+        key_id = val.short
+        out = match_effects(key_id, text)
+    show(out)
         # print(key)
         # print(val)
-        out = match_effects(argp.keyvalues[key], text)
-    show(out)
+        # key_id = argp.get_id(key).short
+        # out = match_effects(argp.keyvalues[key_id], text)
     # Apply only the last effect specified
     # cmds = ['flip', 'zalgo', 'morse']
 
