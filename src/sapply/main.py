@@ -79,21 +79,21 @@ def build_cli():
         Command('zalgo', list(), lambda x: x, help=''),
         # Normal CLI Options
         # Note that -h, --help option should be specified.
-        Option('-v', '--version'        , 'Show program version'),
-        Option('-V', '--verbose'        , 'Enable verbose mode'),
+        Option('-v', '--version'        , help='Show program version'),
+        Option('-V', '--verbose'        , help='Enable verbose mode'),
         # Format Options
         # Option('-e', '--effect', 'Applies an effect on the text. '),
-        Option('-sb', '--sub'           , 'Subscript text'),
-        Option('-sp', '--super'         , 'Superscript text'),
-        Option('-st', '--strike'        , 'Strikethrough text'),
-        Option('-oe', '--oldeng'        , 'Old English style text'),
-        Option('-me', '--medieval'      , 'Medieval style text'),
-        Option('-mo', '--monospace'     , 'Monospace font text'),
-        Option('-b' , '--bold'          , 'Bold text'),
-        Option('-bs', '--bold-sans'     , 'Bold sans-serif text'),
-        Option('-i' , '--italic'        , 'Italicized text'),
-        Option('-ib', '--italic-bold'   , 'Italic bold text'),
-        Option('-is', '--italic-sans'   , 'Italic sans-serif text'),
+        Option('-sb', '--sub'           , help='Subscript text'),
+        Option('-sp', '--super'         , help='Superscript text'),
+        Option('-st', '--strike'        , help='Strikethrough text'),
+        Option('-oe', '--oldeng'        , help='Old English style text'),
+        Option('-me', '--medieval'      , help='Medieval style text'),
+        Option('-mo', '--monospace'     , help='Monospace font text'),
+        Option('-b' , '--bold'          , help='Bold text'),
+        Option('-bs', '--bold-sans'     , help='Bold sans-serif text'),
+        Option('-i' , '--italic'        , help='Italicized text'),
+        Option('-ib', '--italic-bold'   , help='Italic bold text'),
+        Option('-is', '--italic-sans'   , help='Italic sans-serif text'),
     ]
 
     argp = Argp(options, description=PROGRAM_DESCRIPTION)
