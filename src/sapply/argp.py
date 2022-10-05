@@ -1,16 +1,7 @@
 from loguru import logger
 import typing, sys, inspect, os
 
-# How the usage formatter will work
-# Either:
-# - Pass in format string with given help/usage format type
-# - Use default formatting
-# Parse format strings
-# Replace tokens with variables & values, expand options
-# Create print_usage(exit=EXIT_VALUE), where it does not exit on print_usage by default
-
 # Forward Declarations of Types
-# UsageFormatter = typing.NewType("UsageFormatter", None)
 HelpFormatter = typing.NewType("HelpFormatter", None)
 
 Option = typing.NewType("Option", None)
@@ -18,22 +9,15 @@ ArgParser = typing.NewType("ArgParser", None)
 Command = typing.NewType("Command", ArgParser)
 Argp = typing.NewType("Argp", ArgParser)
 
-DEFAULT_HEADER_FORMAT: str = inspect.cleandoc(
-    '''
-    {prog}: {usage}
-    {desc}\n
-    {arg_defs}
-    ''')
-DEFAULT_INDICATOR = "Usage"
-
 class HelpFormatter():
-    # DEFAULT_HEADER_FORMAT: str = (
-        # '{prog}: {usage}\n',
-        # '{desc}\n\n',
-        # '{arg_defs}\n',
-    # )
+    DEFAULT_HEADER_FORMAT: str = inspect.cleandoc(
+        '''
+        {prog}: {usage}
+        {desc}\n
+        {arg_defs}
+        ''')
+    DEFAULT_INDICATOR = "Usage"
 
-    # def __init__(self, prog='', desc='', msg='', usage=DEFAULT_HEADER_FORMAT):
     def __init__(self, arg_defs, prog='', usage='', desc='', usage_format=DEFAULT_HEADER_FORMAT):
         self.arg_defs = arg_defs
         self.prog = prog
@@ -51,19 +35,12 @@ class HelpFormatter():
 
         # Keep usage_format intact
         msg = self.usage_format[:]
-        # print(msg)
-
-        # self.usage.clo
-        # self.usage.replace("{prog}", prog)
-        # self.usage.replace("{prog}", prog)
 
         options_msg: str = ''
         cmds_msg: str = ''
 
         arg_def: Command | Option
-        # for arg_id, arg_def in argp.arg_defs:
         for arg_def in self.arg_defs:
-        # for arg_id, arg_def in self.arg_defs:
             if isinstance(arg_def, Command):
                 # Format commands like this for now:
                 # id        help
@@ -72,98 +49,43 @@ class HelpFormatter():
                 # id        help
                 #   short, long         help
                 #   short, long         help
-                pass
+                format = ''
+                cmds_msg += format
             elif isinstance(arg_def, Option):
-                # Format options like:
-                # {indent} short, long {help_indent} help
-                # {indent}      , long {help_indent} help
-                # {indent} short       {help_indent} help
+                # Default option format:
+                #   -v,  --version              Show program version
+                #   -sb, --sub                  Subscript text
+                space = ' '
                 short = arg_def.short
                 long = arg_def.long
                 help = arg_def.help
 
-                # indent = 2
-                # help_indent = 27
-
-                # format = f'{short:<indent}, {long} {help:>help_indent}'
-
-                # format = f'{short:<2}, {long} {help:>22}\n'
-                # format = f'{short:<2}, {long:<22} {help}\n'
-                # format = f'{short:>2}, {long:<22} {help}\n'
-
-                # format = f'{short:>2}, {long:<23}{help}\n'
-                space = ' '
-                comma = ','
-                # format = f'{space:<2} {short}{comma:<2} {long:<23}{help}\n'
-
-                # format = f'{space:<2} {short}, {long:>23}{help}\n'
-
-                #   -v,  --version              Show program version
-                #   -V,  --verbose              Enable verbose mode
-                #   -sb, --sub                  Subscript text
-                # format = f'{space:<2} {short}{comma:<2} {long:<23}{help}\n'
-
-                # indent = f'{space:<2}'
-                # flags = f'{short}{comma:<2}{long:<23}'
-
-                # format = f'{indent}{flags}{help}'
-                # format = f'{space:<2}{short}{comma:<2}{long:<23}{help}\n'
                 short_flag = short + ','
-                # format = f'{space:<2}{short_flag:<6}{long:<23}{help}\n'
                 format = f'{space:<2}{short_flag:<6}{long:<21}{help}\n'
 
                 options_msg += format
-                # self.msg = format
 
         logger.debug(f'{prog=} {desc=} {usage=}')
+        logger.debug(cmds_msg)
         logger.debug(options_msg)
 
         # Format the message
-        msg = msg.format(prog=prog, usage=usage, desc=desc, arg_defs=options_msg)
-        # msg.format(prog)
+        # args_def = options_msg if cmds_msg == '' else cmds_msg + '\n' + options_msg
+        # cmds_msg == '' else 
 
-        # msg.format(prog=self.prog,
-                   # usage=self.usage,
-                   # desc=self.desc,
-                   # arg_defs=options_msg)
+        # if cmds_msg != '':
+            # args_def = cmds_msg + '\n' + options_msg
+        # else:
+            # args_def = options_msg
+        arg_defs = cmds_msg + '\n' + options_msg if cmds_msg != '' else options_msg
+        msg = msg.format(prog=prog, usage=usage, desc=desc, arg_defs=arg_defs)
 
-        # msg.format(self.prog, self.usage, self.desc, options_msg)
-        # msg.replace('{prog}', prog)
         self.msg = msg
-
-    # def get_msg(self):
-        # return self.msg
 
     def show_usage(self):
         self.format_help()
         print(self.msg)
-        # print(self.get_msg())
         sys.exit(1)
-
-# Formatting
-# class HelpFormatter():
-    # DEFAULT_INDICATOR = "Usage"
-    # DEFAULT_HEADER_FORMAT = (f'%s: %s\n',
-                      # f'%s\n',)
-    # # def __init__(self, usage, argp):
-    # def __init__(self, argp: Argp):
-        # format_string = ''
-        # arg_def: Command | Option
-        # # for arg_def in argp.arg_defs:
-            # # arg_def.items()
-        # for _, arg_def in argp.arg_defs:
-            # if isinstance(arg_def, Command):
-                # cmd: Command = arg_def
-                # cmd.id
-            # elif isinstance(arg_def, Option):
-                # pass
-            # pass
-        # self.usage = UsageFormatter(self.DEFAULT_INDICATOR, "")
-
-# class UsageFormatter():
-    # def __init__(self, indicator, msg):
-        # self.usage = (f'{indicator}: {msg}')
-        # pass
 
 class Option():
     def __init__(self, short: str, long: str, val='', flag=False, id='', callback: typing.Callable = lambda: None, help=''):
@@ -275,18 +197,11 @@ When doing direct custom parsing from sys.argv:
 class Argp(ArgParser):
     def __init__(self, args: list, description='', no_help_message=False):
         if not no_help_message:
-            # Init HelpFormatter
-            prog = os.path.basename(__file__)
-            usage = ''
-            desc = description
-            # print(f'{prog}, {usage}, {desc}')
-            self.help = HelpFormatter(arg_defs=args, prog=prog, usage=usage, desc=desc)
-            # self.help = HelpFormatter()
+            self.help = HelpFormatter(arg_defs=args, prog=os.path.basename(__file__), usage='', desc=description)
 
             # Add -h, --help option
-            # show_help = lambda help: help.format_help(); help.show_usage()
+            # TODO: Long options are broken
             help_option = Option('-h', '--help', callback=self.help.show_usage, help='Show program usage')
-            # help_option = Option('-h', '--help', callback=self.help, help='Show program usage')
             args.append(help_option)
 
         super().__init__(args)
