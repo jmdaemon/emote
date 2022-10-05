@@ -24,22 +24,24 @@ Argp = typing.NewType("Argp", ArgParser)
 class HelpFormatter():
     DEFAULT_HEADER_FORMAT: str = inspect.cleandoc(
         '''
-        {prog}: {usage}
+        {usage_indicator}: {usage}
         {desc}\n
         {arg_defs}
         ''')
     DEFAULT_INDICATOR = "Usage"
 
-    def __init__(self, arg_defs, prog='', usage='', desc='', usage_format=DEFAULT_HEADER_FORMAT):
+    def __init__(self, arg_defs, prog='', usage='', desc='', usage_indicator=DEFAULT_INDICATOR, usage_format=DEFAULT_HEADER_FORMAT):
         self.arg_defs = arg_defs
         self.prog = prog
         self.usage = usage
         self.desc = desc
+        self.usage_indicator = usage_indicator
         self.usage_format = usage_format
         self.msg = ''
 
     def format_help(self):
         prog = self.prog
+        usage_indicator = self.usage_indicator
         usage = self.usage
         desc = self.desc
 
@@ -83,7 +85,7 @@ class HelpFormatter():
 
         # Format the message
         arg_defs = cmds_msg + '\n' + options_msg if cmds_msg != '' else options_msg
-        msg = msg.format(prog=prog, usage=usage, desc=desc, arg_defs=arg_defs)
+        msg = msg.format(usage_indicator=usage_indicator, usage=usage, desc=desc, arg_defs=arg_defs)
         self.msg = msg
 
     def show_usage(self):
