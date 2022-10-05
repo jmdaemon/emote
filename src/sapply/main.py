@@ -79,15 +79,13 @@ def build_cli():
         Command('flip', list(), lambda x: x, help=''),
         Command('morse', morse_options, lambda x: x, help=''),
         Command('zalgo', list(), lambda x: x, help=''),
-        # Normal CLI Options
-        # Note that -h, --help option should be specified.
+        # Global CLI Options
         Option('-v', '--version'        , help='Show program version'),
         Option('-V', '--verbose'        , help='Enable verbose mode'),
         # Format Options
-        # Option('-e', '--effect', 'Applies an effect on the text. '),
         Option('-sb', '--sub'           , 'subscripts'      , help='Subscript text'),
         Option('-sp', '--super'         , 'superscripts'    , help='Superscript text'),
-        Option('-st', '--strike'        , help='Strikethrough text'),
+        Option('-st', '--strike'        , help='Strikethrough text'), # TODO: Accepts type
         Option('-ds', '--double-struck' , 'doublestruck'    , help='Double struck/Blackboard bold text'),
         Option('-oe', '--oldeng'        , 'old-eng'         , help='Old English style text'),
         Option('-me', '--medieval'      , 'med'             , help='Medieval style text'),
@@ -95,7 +93,7 @@ def build_cli():
         Option('-b' , '--bold'          , 'bold'            , help='Bold text'),
         Option('-bs', '--bold-sans'     , 'bold-sans'       , help='Bold sans-serif text'),
         Option('-i' , '--italic'        , 'italic'          , help='Italicized text'),
-        Option('-ib', '--italic-bold'   , 'bold-italic'     , help='Italic bold text'), # Note: The h character is missing
+        Option('-ib', '--italic-bold'   , 'italic-bold'     , help='Italic bold text'), # Note: The h character is missing
         Option('-is', '--italic-sans'   , 'italic-sans'     , help='Italic sans-serif text'),
     ]
 
