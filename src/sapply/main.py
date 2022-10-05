@@ -70,15 +70,28 @@ def build_cli():
     PROGRAM_USAGE = '{prog} [COMMAND...] [OPTIONS...] [text]'
 
     morse_options = [
-        Option('-m', '--morse', 'Convert text to Morse code'),
-        Option('-a', '--ascii', 'Convert text to ASCII text'),
+        Option('-m', '--morse'  , help='Convert text to Morse code'),
+        Option('-a', '--ascii'  , help='Convert text to ASCII text'),
+    ]
+
+    flip_options = [
+        Option('-b' , '--backwards'     , help='Flips texts backwards. Default: True'),
+        Option('-u' , '--upside-down'   , help='Flips text upside down. Default: True'),
+        Option('-h' , '--convert-html'  , help='Converts text to html unicode characters'),
+    ]
+
+    zalgo_options = [
+        Option('-u' , '--up'        , help='Effect extends upwards from text'),
+        Option('-m' , '--mid'       , help='Effect only the centre text'),
+        Option('-d' , '--down'      , help='Effect extends downwards from text'),
+        Option('-i' , '--intensity' , help='Zalgoify intensity. Choices: [mini, normal, maxi]'),
     ]
 
     options = [
         # Commands
-        Command('flip', list(), lambda x: x, help=''),
+        Command('flip', flip_options, lambda x: x, help=''),
         Command('morse', morse_options, lambda x: x, help=''),
-        Command('zalgo', list(), lambda x: x, help=''),
+        Command('zalgo', zalgo_options, lambda x: x, help=''),
         # Global CLI Options
         Option('-v', '--version'        , help='Show program version'),
         Option('-V', '--verbose'        , help='Enable verbose mode'),
