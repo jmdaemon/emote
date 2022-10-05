@@ -48,6 +48,7 @@ class HelpFormatter():
 
         # Copy usage_format, usage strings
         usage_msg = self.usage[:]
+        desc_msg = self.desc[:]
         msg = self.usage_format[:]
 
         options_msg: str = ''
@@ -82,12 +83,14 @@ class HelpFormatter():
         logger.debug(cmds_msg)
         logger.debug(options_msg)
 
-        # Format the usage message first
+        # Format the help message
         usage_msg = usage_msg.format(prog=prog)
+        desc_msg = desc_msg.format(prog=prog.capitalize())
 
-        # Format the message
         arg_defs = cmds_msg + '\n' + options_msg if cmds_msg != '' else options_msg
-        msg = msg.format(usage_indicator=usage_indicator, usage=usage_msg, desc=desc, arg_defs=arg_defs)
+        msg = msg.format(usage_indicator=usage_indicator, usage=usage_msg, desc=desc_msg, arg_defs=arg_defs)
+
+        msg = msg.rstrip() # Remove last newline
         self.msg = msg
 
     def show_usage(self):

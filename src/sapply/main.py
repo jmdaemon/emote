@@ -65,7 +65,7 @@ def show(text: str):
     print(text, end='\0') # Strip newlines from text
 
 def build_cli():
-    PROGRAM_DESCRIPTION = 'Convert ASCII text to Unicode values'
+    PROGRAM_DESCRIPTION = '{prog} - Convert ASCII text to Unicode values'
     PROGRAM_USAGE = '{prog} [COMMAND...] [OPTIONS...] [text]'
 
     morse_options = [
