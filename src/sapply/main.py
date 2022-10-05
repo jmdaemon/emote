@@ -66,7 +66,7 @@ def show(text: str):
 
 def build_cli():
     PROGRAM_DESCRIPTION = 'Convert ASCII text to Unicode values'
-    PROGRAM_USAGE = 'sapply [COMMAND...] [OPTIONS...] [text]'
+    PROGRAM_USAGE = '{prog} [COMMAND...] [OPTIONS...] [text]'
 
     morse_options = [
         Option('-m', '--morse', 'Convert text to Morse code'),
