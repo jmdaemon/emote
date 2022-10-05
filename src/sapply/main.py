@@ -1,6 +1,6 @@
 # Sapply libraries
 from sapply.argp import Command, Option, Argp
-from sapply.cmap import cmapdefs, to_charmap
+from sapply.cmap import to_charmap
 from sapply.flip import flip
 from sapply.zalgo import zalgo
 from sapply.morse import to_morse
@@ -37,12 +37,12 @@ def strikethrough(text, strikeover=HYPEN_STRIKETHROUGH):
 
 def mapto(cmap: str):
     ''' Maps ASCII characters to a unicode character map '''
-    file = cmapdefs[cmap]
+    # file = cmapdefs[cmap]
+    file = f'{cmap}.json'
     conts = pkg_resources.resource_string('sapply.resources', file)
     logger.debug(f'Resource File Contents:\n{conts}')
     return (to_charmap(conts))
 
-# def match_effects(cmd: str, text: str, opt=None) -> str:
 def apply_effects(effect: str, text: str, cmap: str = '') -> str:
     ''' Applies unicode character mappings to ASCII text '''
     out = ''
@@ -51,18 +51,6 @@ def apply_effects(effect: str, text: str, cmap: str = '') -> str:
     if (cmap == ''):
         return out
 
-    # match cmd:
-        # case '--sub'                        : out = convert(mapto('subscript'), text)
-        # case '--super'                      : out = convert(mapto('superscript'), text)
-        # case '-ds'      | '--doublestruck'  : out = convert(mapto('doubleStruck'), text)
-        # case '-oe'      | '--oldeng'        : out = convert(mapto('oldEnglish'), text)
-        # case '-med'     | '--medieval'      : out = convert(mapto('medieval'), text)
-        # case '-mono'    | '--monospace'     : out = convert(mapto('monospace'), text)
-        # case '-b'       | '--bold'          : out = convert(mapto('bold'), text)
-        # case '-i'       | '--italics'       : out = convert(mapto('italic'), text)
-        # case '-bs'  | '--boldsans'          : out = convert(mapto('boldSans'), text)
-        # case '-ib'  | '--italicbold'        : out = convert(mapto('boldItalic'), text)
-        # case '-is'  | '--italicsans'        : out = convert(mapto('italicSans'), text)
     match effect:
         case '-st'  | '--strike':
             # TODO: Implement strikethrough with tilde, or hypen,
@@ -76,6 +64,8 @@ def show(text: str):
     print(text, end='\0') # Strip newlines from text
 
 def build_cli():
+    ''' Creates the command line interface '''
+    # TODO: Add flag option to disable capitlization of {prog} in program description
     PROGRAM_DESCRIPTION = '{prog} - Convert ASCII text to Unicode values'
     PROGRAM_USAGE = '{prog} [COMMAND...] [OPTIONS...] [text]'
 
@@ -95,17 +85,18 @@ def build_cli():
         Option('-V', '--verbose'        , help='Enable verbose mode'),
         # Format Options
         # Option('-e', '--effect', 'Applies an effect on the text. '),
-        Option('-sb', '--sub'           , 'subscript'     , help='Subscript text'),
-        Option('-sp', '--super'         , 'superscript'   , help='Superscript text'),
+        Option('-sb', '--sub'           , 'subscripts'      , help='Subscript text'),
+        Option('-sp', '--super'         , 'superscripts'    , help='Superscript text'),
         Option('-st', '--strike'        , help='Strikethrough text'),
-        Option('-oe', '--oldeng'        , 'oldEnglish'    , help='Old English style text'),
-        Option('-me', '--medieval'      , 'medieval'      , help='Medieval style text'),
-        Option('-mo', '--monospace'     , 'monospace'     , help='Monospace font text'),
-        Option('-b' , '--bold'          , 'bold'          , help='Bold text'),
-        Option('-bs', '--bold-sans'     , 'boldSans'      , help='Bold sans-serif text'),
-        Option('-i' , '--italic'        , 'italic'        , help='Italicized text'),
-        Option('-ib', '--italic-bold'   , 'boldItalic'    , help='Italic bold text'),
-        Option('-is', '--italic-sans'   , 'italicSasns'   , help='Italic sans-serif text'),
+        Option('-ds', '--double-struck' , 'doublestruck'    , help='Double struck/Blackboard bold text'),
+        Option('-oe', '--oldeng'        , 'old-eng'         , help='Old English style text'),
+        Option('-me', '--medieval'      , 'med'             , help='Medieval style text'),
+        Option('-mo', '--monospace'     , 'monospace'       , help='Monospace font text'),
+        Option('-b' , '--bold'          , 'bold'            , help='Bold text'),
+        Option('-bs', '--bold-sans'     , 'bold-sans'       , help='Bold sans-serif text'),
+        Option('-i' , '--italic'        , 'italic'          , help='Italicized text'),
+        Option('-ib', '--italic-bold'   , 'bold-italic'     , help='Italic bold text'), # Note: The h character is missing
+        Option('-is', '--italic-sans'   , 'italic-sans'     , help='Italic sans-serif text'),
     ]
 
     argp = Argp(options, usage=PROGRAM_USAGE, desc=PROGRAM_DESCRIPTION)

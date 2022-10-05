@@ -5,11 +5,15 @@ from loguru import logger
     # - Refactor program to use 'val' option field
     # - Only source of arguments is in the options list
     # Argp:
+    # Priority
+        # - Add subcommand options
+        # - Add callbacks with arguments feature
+        # - Add support for options with nargs, + specify strings for options
+        #   - Create type option to specify arg type, and ensure that an arg value
+        #       is given for it in ArgParser.parse()
     # - Flesh out rest of the support for subcommands
-    # - Add subcommand options
     # - Add support for parsing multiple options & text
     # - Move argp declaration to separate python module
-    # - Add callbacks with arguments feature
     # - Write unit tests, documentation, create package, upload
 
 # Forward Declarations of Types
