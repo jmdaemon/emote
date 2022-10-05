@@ -31,7 +31,7 @@ def convert(char_map, text):
 TILDE_STRIKETHROUGH = u'\u0334'
 HYPEN_STRIKETHROUGH = u'\u0336'
 
-def strikethrough(text, strikeover):
+def strikethrough(text, strikeover=HYPEN_STRIKETHROUGH):
     ''' Converts ASCII characters into unicode 'striked' characters '''
     return ''.join([char + strikeover for char in text])
 
@@ -42,25 +42,33 @@ def mapto(cmap: str):
     logger.debug(f'Resource File Contents:\n{conts}')
     return (to_charmap(conts))
 
-def match_effects(cmd: str, text: str, opt=None) -> str:
+# def match_effects(cmd: str, text: str, opt=None) -> str:
+def apply_effects(effect: str, text: str, cmap: str = '') -> str:
     ''' Applies unicode character mappings to ASCII text '''
     out = ''
-    opt = HYPEN_STRIKETHROUGH if (opt == '-') else TILDE_STRIKETHROUGH
+    # opt = HYPEN_STRIKETHROUGH if (opt == '-') else TILDE_STRIKETHROUGH
     logger.debug('In match_effects:')
+    if (cmap == ''):
+        return out
 
-    match cmd:
-        case '--sub'                        : out = convert(mapto('subscript'), text)
-        case '--super'                      : out = convert(mapto('superscript'), text)
-        case '-ds'      | '--doublestruck'  : out = convert(mapto('doubleStruck'), text)
-        case '-oe'      | '--oldeng'        : out = convert(mapto('oldEnglish'), text)
-        case '-med'     | '--medieval'      : out = convert(mapto('medieval'), text)
-        case '-mono'    | '--monospace'     : out = convert(mapto('monospace'), text)
-        case '-b'       | '--bold'          : out = convert(mapto('bold'), text)
-        case '-i'       | '--italics'       : out = convert(mapto('italic'), text)
-        case '-bs'  | '--boldsans'          : out = convert(mapto('boldSans'), text)
-        case '-ib'  | '--italicbold'        : out = convert(mapto('boldItalic'), text)
-        case '-is'  | '--italicsans'        : out = convert(mapto('italicSans'), text)
-        case '-st'  | '--strike'            : out = strikethrough(text, opt)
+    # match cmd:
+        # case '--sub'                        : out = convert(mapto('subscript'), text)
+        # case '--super'                      : out = convert(mapto('superscript'), text)
+        # case '-ds'      | '--doublestruck'  : out = convert(mapto('doubleStruck'), text)
+        # case '-oe'      | '--oldeng'        : out = convert(mapto('oldEnglish'), text)
+        # case '-med'     | '--medieval'      : out = convert(mapto('medieval'), text)
+        # case '-mono'    | '--monospace'     : out = convert(mapto('monospace'), text)
+        # case '-b'       | '--bold'          : out = convert(mapto('bold'), text)
+        # case '-i'       | '--italics'       : out = convert(mapto('italic'), text)
+        # case '-bs'  | '--boldsans'          : out = convert(mapto('boldSans'), text)
+        # case '-ib'  | '--italicbold'        : out = convert(mapto('boldItalic'), text)
+        # case '-is'  | '--italicsans'        : out = convert(mapto('italicSans'), text)
+    match effect:
+        case '-st'  | '--strike':
+            # TODO: Implement strikethrough with tilde, or hypen,
+            # Maybe reimplement this as a command?
+            out = strikethrough(text)
+        case _: out = convert(mapto(cmap), text)
     return out
 
 def show(text: str):
@@ -87,17 +95,17 @@ def build_cli():
         Option('-V', '--verbose'        , help='Enable verbose mode'),
         # Format Options
         # Option('-e', '--effect', 'Applies an effect on the text. '),
-        Option('-sb', '--sub'           , help='Subscript text'),
-        Option('-sp', '--super'         , help='Superscript text'),
+        Option('-sb', '--sub'           , 'subscript'     , help='Subscript text'),
+        Option('-sp', '--super'         , 'superscript'   , help='Superscript text'),
         Option('-st', '--strike'        , help='Strikethrough text'),
-        Option('-oe', '--oldeng'        , help='Old English style text'),
-        Option('-me', '--medieval'      , help='Medieval style text'),
-        Option('-mo', '--monospace'     , help='Monospace font text'),
-        Option('-b' , '--bold'          , help='Bold text'),
-        Option('-bs', '--bold-sans'     , help='Bold sans-serif text'),
-        Option('-i' , '--italic'        , help='Italicized text'),
-        Option('-ib', '--italic-bold'   , help='Italic bold text'),
-        Option('-is', '--italic-sans'   , help='Italic sans-serif text'),
+        Option('-oe', '--oldeng'        , 'oldEnglish'    , help='Old English style text'),
+        Option('-me', '--medieval'      , 'medieval'      , help='Medieval style text'),
+        Option('-mo', '--monospace'     , 'monospace'     , help='Monospace font text'),
+        Option('-b' , '--bold'          , 'bold'          , help='Bold text'),
+        Option('-bs', '--bold-sans'     , 'boldSans'      , help='Bold sans-serif text'),
+        Option('-i' , '--italic'        , 'italic'        , help='Italicized text'),
+        Option('-ib', '--italic-bold'   , 'boldItalic'    , help='Italic bold text'),
+        Option('-is', '--italic-sans'   , 'italicSasns'   , help='Italic sans-serif text'),
     ]
 
     argp = Argp(options, usage=PROGRAM_USAGE, desc=PROGRAM_DESCRIPTION)
@@ -121,10 +129,17 @@ def main():
     argp.parse()
 
     text = argp.arguments[0]
+    logger.debug(argp.arg_vals)
 
     out: str = ''
+    # For all options set
     for _, val in argp.arg_vals.items():
         key_id = val.short
-        out = match_effects(key_id, text)
-    show(out)
-
+        cmap = val.val
+        # cmap = argp.arg_defs[key_id].val
+        # cmap = argp.get_id(key_id).val
+        logger.debug(f'{cmap=}')
+        # out = match_effects(key_id, text)
+        out = apply_effects(key_id, text, cmap)
+        if (out != ''):
+            show(out)
