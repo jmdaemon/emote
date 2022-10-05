@@ -92,7 +92,8 @@ class HelpFormatter():
         sys.exit(1)
 
 class Option():
-    def __init__(self, short: str, long: str, val='', flag=False, id='', callback: typing.Callable = lambda: None, help=''):
+    # def __init__(self, short: str, long: str, val='', flag=False, id='', callback: typing.Callable = lambda: None, help=''):
+    def __init__(self, short: str, long: str, val='', flag=False, id='', callback: typing.Callable = None, help=''):
         self.short = short
         self.long = long
         self.val = val
