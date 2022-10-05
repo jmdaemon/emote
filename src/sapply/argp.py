@@ -1,5 +1,17 @@
-from loguru import logger
 import typing, sys, inspect, os
+from loguru import logger
+
+# TODO:
+    # - Fix long & short options not working
+    # - Refactor program to use 'val' option field
+    # - Only source of arguments is in the options list
+    # Argp:
+    # - Flesh out rest of the support for subcommands
+    # - Add subcommand options
+    # - Add support for parsing multiple options & text
+    # - Move argp declaration to separate python module
+    # - Add callbacks with arguments feature
+    # - Write unit tests, documentation, create package, upload
 
 # Forward Declarations of Types
 HelpFormatter = typing.NewType("HelpFormatter", None)
@@ -70,16 +82,8 @@ class HelpFormatter():
         logger.debug(options_msg)
 
         # Format the message
-        # args_def = options_msg if cmds_msg == '' else cmds_msg + '\n' + options_msg
-        # cmds_msg == '' else 
-
-        # if cmds_msg != '':
-            # args_def = cmds_msg + '\n' + options_msg
-        # else:
-            # args_def = options_msg
         arg_defs = cmds_msg + '\n' + options_msg if cmds_msg != '' else options_msg
         msg = msg.format(prog=prog, usage=usage, desc=desc, arg_defs=arg_defs)
-
         self.msg = msg
 
     def show_usage(self):
@@ -89,11 +93,14 @@ class HelpFormatter():
 
 class Option():
     def __init__(self, short: str, long: str, val='', flag=False, id='', callback: typing.Callable = lambda: None, help=''):
-        self.id = id
         self.short = short
         self.long = long
-        self.flag = flag
         self.val = val
+        self.flag = flag
+        # self.id = id
+        # short -> id
+        # long -> id
+        self.ids: dict[str, str] = {}
         self.callback = callback
         self.help = help
 
@@ -102,40 +109,68 @@ class Option():
     def set_id(self):
         ''' Sets the option id from the longname specifier
         and defaults to the shortname if not specified '''
-        if self.long[0:1] == '--':
-            self.id = self.long[1:]
-        else:
-            self.id = self.short[1:]
+        # long_hypen = 
+        # short_hypen = self.short[0:1]
+        if self.long[0:2] == '--':
+            # print(self.long)
+            # self.id = self.long[1:]
+            # self.id = self.long[2:]
+            self.ids[self.long] = self.long[2:]
+        # self.id = self.short[1:]
+        # self.id = self.short[1:]
+        self.ids[self.short] = self.short[1:]
+        # else:
+        # print(self.id)
 
     def is_flag(self):
         return True if self.flag else False
 
 class ArgParser():
-    def __init__(self, argp_args: list, help='', *args, **kwargs):
+    def __init__(self, argp_args: list[Command | Option], help='', *args, **kwargs):
         self.args = argp_args
         self.help = help
 
         # Initialize the keywords for easy matching
-        self.arguments = []
+        self.arguments: list[str] = []
         self.arg_defs: dict = {}
         self.arg_vals: dict = {}
+        # logger.debug('ArgParser __init__')
         for arg in self.args:
-            self.arg_defs[arg.id] = arg
+            if isinstance(arg, Option):
+                ids_dict = arg.ids
+                for flag, id in ids_dict.items():
+                    logger.debug(f'{flag=}, {id=}')
+                    # self.arg_defs[id] = flag
+                    # self.arg_defs[flag] = id
+                    self.arg_defs[id] = arg
+
+            elif isinstance(arg, Command):
+                self.arg_defs[arg.id] = arg
+            # arg_id = self.args[
+            # self.arg_defs[arg] = arg
+
+            # self.arg_defs[arg.id] = arg
 
         # Stores the values of the options & arguments
 
     def get_id(self, id):
         # Test for short option
-        long = id[1:]
-        short = id[0:]
+        # short = id[0:]
+
+        long = id[2:]
+        short = id[1:]
         result: Command | Option | str
-        if self.arg_defs.__contains__(id):
+        if self.arg_defs.__contains__(id): # Command
             result = self.arg_defs[id]
-        if self.arg_defs.__contains__(long):
+        elif self.arg_defs.__contains__(long): # Long option
             result = self.arg_defs[long]
-        elif self.arg_defs.__contains__(short):
+        elif self.arg_defs.__contains__(short): # Short option
             result = self.arg_defs[short]
         else:
+        # result: Command | Option | str
+        # if self.arg_defs.__contains__(id):
+            # result = self.arg_defs[id]
+        # else:
             result = 'Argument ID Not Found'
         return result
 
@@ -144,7 +179,9 @@ class ArgParser():
         logger.debug('Parsing arguments')
         for argv in argvs:
             logger.debug(f'Arg #{index}: {argv}')
+            # e.g: morse (cmd), i (short), italic (long), 'Argument ID Not Found' (argument)
             arg: Command | Option | str = self.get_id(argv)
+            logger.debug(f'{arg=}')
 
             if isinstance(arg, Command):
                 logger.debug('Is Command')
@@ -157,7 +194,10 @@ class ArgParser():
                 if arg.callback != None:
                     arg.callback()
                 else:
-                    self.arg_vals[arg.id] = True if arg.is_flag() else arg
+                    # Index using the id, italic
+                    # self.arg_vals[arg.id] = True if arg.is_flag() else arg
+                    arg_id = arg.ids[argv]
+                    self.arg_vals[arg_id] = True if arg.is_flag() else arg
             else:
                 # Assume we are only left with an argument
                 logger.debug('Is Argument')
