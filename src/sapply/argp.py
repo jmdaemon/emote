@@ -195,8 +195,8 @@ When doing direct custom parsing from sys.argv:
 
 '''
 class Argp(ArgParser):
-    def __init__(self, args: list, description='', no_help_message=False):
-        if not no_help_message:
+    def __init__(self, args: list, description='', help_formatter=None):
+        if help_formatter == None:
             self.help = HelpFormatter(arg_defs=args, prog=os.path.basename(__file__), usage='', desc=description)
 
             # Add -h, --help option
