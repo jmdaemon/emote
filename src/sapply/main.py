@@ -66,6 +66,7 @@ def show(text: str):
 
 def build_cli():
     PROGRAM_DESCRIPTION = 'Convert ASCII text to Unicode values'
+    PROGRAM_USAGE = 'sapply [COMMAND...] [OPTIONS...] [text]'
 
     morse_options = [
         Option('-m', '--morse', 'Convert text to Morse code'),
@@ -96,7 +97,7 @@ def build_cli():
         Option('-is', '--italic-sans'   , help='Italic sans-serif text'),
     ]
 
-    argp = Argp(options, description=PROGRAM_DESCRIPTION)
+    argp = Argp(options, usage=PROGRAM_USAGE, desc=PROGRAM_DESCRIPTION)
     return argp
 
 def main():

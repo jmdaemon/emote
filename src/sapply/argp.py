@@ -195,9 +195,9 @@ When doing direct custom parsing from sys.argv:
 
 '''
 class Argp(ArgParser):
-    def __init__(self, args: list, description='', help_formatter=None):
+    def __init__(self, args: list, usage='', desc='', help_formatter=None):
         if help_formatter == None:
-            self.help = HelpFormatter(arg_defs=args, prog=os.path.basename(__file__), usage='', desc=description)
+            self.help = HelpFormatter(arg_defs=args, prog=os.path.basename(__file__), usage=usage, desc=desc)
 
             # Add -h, --help option
             # TODO: Long options are broken
@@ -206,7 +206,7 @@ class Argp(ArgParser):
 
         super().__init__(args)
         self.argv = sys.argv[1:]
-        self.description = description
+        self.desc = desc
 
     def parse(self):
         super().parse(self.argv)
