@@ -2,7 +2,6 @@ import typing, sys, inspect, os
 from loguru import logger
 
 # TODO:
-    # - Fix long & short options not working
     # - Refactor program to use 'val' option field
     # - Only source of arguments is in the options list
     # Argp:
@@ -77,7 +76,6 @@ class HelpFormatter():
 
                 short_flag = short + ','
                 format = f'{space:<2}{short_flag:<6}{long:<21}{help}\n'
-
                 options_msg += format
 
         logger.debug(f'{prog=} {desc=} {usage=}')
@@ -98,15 +96,11 @@ class HelpFormatter():
         sys.exit(1)
 
 class Option():
-    # def __init__(self, short: str, long: str, val='', flag=False, id='', callback: typing.Callable = lambda: None, help=''):
     def __init__(self, short: str, long: str, val='', flag=False, id='', callback: typing.Callable = None, help=''):
         self.short = short
         self.long = long
         self.val = val
         self.flag = flag
-        # self.id = id
-        # short -> id
-        # long -> id
         self.ids: dict[str, str] = {}
         self.callback = callback
         self.help = help
@@ -116,18 +110,10 @@ class Option():
     def set_id(self):
         ''' Sets the option id from the longname specifier
         and defaults to the shortname if not specified '''
-        # long_hypen = 
-        # short_hypen = self.short[0:1]
+
         if self.long[0:2] == '--':
-            # print(self.long)
-            # self.id = self.long[1:]
-            # self.id = self.long[2:]
             self.ids[self.long] = self.long[2:]
-        # self.id = self.short[1:]
-        # self.id = self.short[1:]
         self.ids[self.short] = self.short[1:]
-        # else:
-        # print(self.id)
 
     def is_flag(self):
         return True if self.flag else False
@@ -147,23 +133,12 @@ class ArgParser():
                 ids_dict = arg.ids
                 for flag, id in ids_dict.items():
                     logger.debug(f'{flag=}, {id=}')
-                    # self.arg_defs[id] = flag
-                    # self.arg_defs[flag] = id
                     self.arg_defs[id] = arg
 
             elif isinstance(arg, Command):
                 self.arg_defs[arg.id] = arg
-            # arg_id = self.args[
-            # self.arg_defs[arg] = arg
-
-            # self.arg_defs[arg.id] = arg
-
-        # Stores the values of the options & arguments
 
     def get_id(self, id):
-        # Test for short option
-        # short = id[0:]
-
         long = id[2:]
         short = id[1:]
         result: Command | Option | str
@@ -174,10 +149,6 @@ class ArgParser():
         elif self.arg_defs.__contains__(short): # Short option
             result = self.arg_defs[short]
         else:
-        # result: Command | Option | str
-        # if self.arg_defs.__contains__(id):
-            # result = self.arg_defs[id]
-        # else:
             result = 'Argument ID Not Found'
         return result
 
@@ -244,7 +215,6 @@ When doing direct custom parsing from sys.argv:
 class Argp(ArgParser):
     def __init__(self, args: list, usage='', desc='', help_formatter=None):
         if help_formatter == None:
-            # self.help = HelpFormatter(arg_defs=args, prog=os.path.basename(__file__), usage=usage, desc=desc)
             self.help = HelpFormatter(arg_defs=args, prog=os.path.basename(sys.argv[0]), usage=usage, desc=desc)
 
             # Add -h, --help option
