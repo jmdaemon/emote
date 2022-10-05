@@ -28,6 +28,9 @@ def convert(char_map, text):
             out += char
     return out
 
+TILDE_STRIKETHROUGH = u'\u0334'
+HYPEN_STRIKETHROUGH = u'\u0336'
+
 def strikethrough(text, strikeover):
     ''' Converts ASCII characters into unicode 'striked' characters '''
     return ''.join([char + strikeover for char in text])
@@ -42,7 +45,7 @@ def mapto(cmap: str):
 def match_effects(cmd: str, text: str, opt=None) -> str:
     ''' Applies unicode character mappings to ASCII text '''
     out = ''
-    opt = u'\u0336' if (opt == '-') else u'\u0334' # - or ~ strikethrough
+    opt = HYPEN_STRIKETHROUGH if (opt == '-') else TILDE_STRIKETHROUGH
     logger.debug('In match_effects:')
 
     match cmd:
