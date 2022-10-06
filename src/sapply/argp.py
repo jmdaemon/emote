@@ -2,7 +2,6 @@ import typing, sys, inspect, os
 from loguru import logger
 
 # TODO:
-    # - Refactor program to use 'val' option field
     # - Only source of arguments is in the options list
     # Argp:
     # Priority
@@ -33,14 +32,23 @@ class HelpFormatter():
         ''')
     DEFAULT_INDICATOR = "Usage"
 
-    def __init__(self, arg_defs, prog='', usage='', desc='', usage_indicator=DEFAULT_INDICATOR, usage_format=DEFAULT_HEADER_FORMAT):
+    def __init__(self, arg_defs, prog='', usage='', desc='',
+                 indent=2,
+                 short_padding=6,
+                 long_padding=21,
+                 usage_indicator=DEFAULT_INDICATOR, usage_format=DEFAULT_HEADER_FORMAT):
         self.arg_defs = arg_defs
         self.prog = prog
         self.usage = usage
         self.desc = desc
+        self.msg = ''
+
+        # Format
+        self.indent = indent
+        self.short_padding = short_padding
+        self.long_padding = long_padding
         self.usage_indicator = usage_indicator
         self.usage_format = usage_format
-        self.msg = ''
 
     def format_help(self):
         prog = self.prog
@@ -59,36 +67,22 @@ class HelpFormatter():
         cmds_msg: str = ''
 
         arg_def: Command | Option
-        # If it's a command
-        # We want to parse these arguments separately
-        # Command-Options:
-            # id        help
-            #   short, long         help
-            #   short, long         help
-        # Command-Commands:
-            # id        help
-                # id        help
-                #   short, long         help
-            #   short, long         help
-        # If argument is a command
-        # - Call format_help on it
-        # format_help():
-        #   For every arg_def in command 
-        #       if arg_def == cmd:
-        #           cmds_msg += arg_def.format_help() # Recursive
-        #       elif arg_def == option:
-        #           # Do the formatting
+        # TODO: Ideal command default format
+        # Command Format:
+        # command-to-option:
+        # id                    help
+        #   short, long         help
+        #   short, long         help
+        # command-to-command:
+        # id        help
+        #   short, long         help
+        #   id        help
+        #       short, long         help
+
         for arg_def in self.arg_defs:
-            # TODO: This will only parse one layer of options for commands
-            # Ideally this would recursively parse all command options
+            # TODO: This solution only parses one layer of options for commands
+            # TODO: Ideally this would recursively parse all command options
             if isinstance(arg_def, Command):
-                # Format commands like this for now:
-                # id        help
-                # TODO: Support sub options in commands
-                # In the future, we want commands like
-                # id        help
-                #   short, long         help
-                #   short, long         help
                 space = ' '
                 id = arg_def.id
                 help = arg_def.help
@@ -96,17 +90,11 @@ class HelpFormatter():
                 format = ''
                 format = f'{space:<2}{id:<27}{help}'
                 cmds_msg += format
-                # TODO: Hack, parse only next layer of options
 
                 cmd_options_msg = ''
-                # for cmd_arg_def in arg_def.arg_defs:
+                # TODO: Refactor this
                 for cmd_arg_def in arg_def.args:
-                    # print(cmd_arg_def)
                     if isinstance(cmd_arg_def, Option):
-                        # print("Is Option")
-                        # Default option format:
-                        #   -v,  --version              Show program version
-                        #   -sb, --sub                  Subscript text
                         space = ' '
                         short = cmd_arg_def.short
                         long = cmd_arg_def.long
@@ -128,7 +116,7 @@ class HelpFormatter():
                 help = arg_def.help
 
                 short_flag = short + ','
-                format = f'{space:<2}{short_flag:<6}{long:<21}{help}\n'
+                format = f'{space:<{self.indent}}{short_flag:<{self.short_padding}}{long:<{self.long_padding}}{help}\n'
                 options_msg += format
 
         logger.debug(f'{prog=} {desc=} {usage=}')
