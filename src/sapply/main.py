@@ -89,9 +89,9 @@ def build_cli():
 
     options = [
         # Commands
-        Command('flip', flip_options, lambda x: x, help=''),
-        Command('morse', morse_options, lambda x: x, help=''),
-        Command('zalgo', zalgo_options, lambda x: x, help=''),
+        Command('flip', flip_options, lambda x: x, help='Flips text upside down'),
+        Command('morse', morse_options, lambda x: x, help='Convert to and from ASCII and morse code'),
+        Command('zalgo', zalgo_options, lambda x: x, help='Applies zalgo effect to text'),
         # Global CLI Options
         Option('-v', '--version'        , help='Show program version'),
         Option('-V', '--verbose'        , help='Enable verbose mode'),

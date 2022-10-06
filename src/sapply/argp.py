@@ -59,7 +59,28 @@ class HelpFormatter():
         cmds_msg: str = ''
 
         arg_def: Command | Option
+        # If it's a command
+        # We want to parse these arguments separately
+        # Command-Options:
+            # id        help
+            #   short, long         help
+            #   short, long         help
+        # Command-Commands:
+            # id        help
+                # id        help
+                #   short, long         help
+            #   short, long         help
+        # If argument is a command
+        # - Call format_help on it
+        # format_help():
+        #   For every arg_def in command 
+        #       if arg_def == cmd:
+        #           cmds_msg += arg_def.format_help() # Recursive
+        #       elif arg_def == option:
+        #           # Do the formatting
         for arg_def in self.arg_defs:
+            # TODO: This will only parse one layer of options for commands
+            # Ideally this would recursively parse all command options
             if isinstance(arg_def, Command):
                 # Format commands like this for now:
                 # id        help
@@ -68,8 +89,35 @@ class HelpFormatter():
                 # id        help
                 #   short, long         help
                 #   short, long         help
+                space = ' '
+                id = arg_def.id
+                help = arg_def.help
+
                 format = ''
+                format = f'{space:<2}{id:<27}{help}'
                 cmds_msg += format
+                # TODO: Hack, parse only next layer of options
+
+                cmd_options_msg = ''
+                # for cmd_arg_def in arg_def.arg_defs:
+                for cmd_arg_def in arg_def.args:
+                    # print(cmd_arg_def)
+                    if isinstance(cmd_arg_def, Option):
+                        # print("Is Option")
+                        # Default option format:
+                        #   -v,  --version              Show program version
+                        #   -sb, --sub                  Subscript text
+                        space = ' '
+                        short = cmd_arg_def.short
+                        long = cmd_arg_def.long
+                        help = cmd_arg_def.help
+
+                        short_flag = short + ','
+                        # TODO: These should not be hardcoded
+                        format = f'{space:<4}{short_flag:<6}{long:<19}{help}\n'
+                        cmd_options_msg += format
+                cmds_msg +=  '\n' + cmd_options_msg + '\n'
+
             elif isinstance(arg_def, Option):
                 # Default option format:
                 #   -v,  --version              Show program version
@@ -91,7 +139,7 @@ class HelpFormatter():
         usage_msg = usage_msg.format(prog=prog)
         desc_msg = desc_msg.format(prog=prog.capitalize())
 
-        arg_defs = cmds_msg + '\n' + options_msg if cmds_msg != '' else options_msg
+        arg_defs = 'Commands\n' + cmds_msg + 'Options\n' + options_msg if cmds_msg != '' else options_msg
         msg = msg.format(usage_indicator=usage_indicator, usage=usage_msg, desc=desc_msg, arg_defs=arg_defs)
 
         msg = msg.rstrip() # Remove last newline
@@ -200,6 +248,33 @@ class Command(ArgParser):
         self.id = id
         self.callback = callback
         self.help = help
+
+    # TODO: Recursive 
+    # def format_help(self, msg=''):
+        # for arg_def in self.arg_defs:
+            # if isinstance(arg_def, Command):
+                # # Format commands like this for now:
+                # # id        help
+                # # TODO: Support sub options in commands
+                # # In the future, we want commands like
+                # # id        help
+                # #   short, long         help
+                # #   short, long         help
+                # format = ''
+                # cmds_msg += format
+            # elif isinstance(arg_def, Option):
+                # # Default option format:
+                # #   -v,  --version              Show program version
+                # #   -sb, --sub                  Subscript text
+                # space = ' '
+                # short = arg_def.short
+                # long = arg_def.long
+                # help = arg_def.help
+
+                # short_flag = short + ','
+                # format = f'{space:<2}{short_flag:<6}{long:<21}{help}\n'
+                # options_msg += format
+        # pass
 
 '''
 Highly customizeable cli arguments parser
