@@ -23,6 +23,31 @@ ArgParser = typing.NewType("ArgParser", None)
 Command = typing.NewType("Command", ArgParser)
 Argp = typing.NewType("Argp", ArgParser)
 
+class OptionsFormatter():
+    ''' Formats command line options '''
+    def __init__(self, argp_args: list,
+                 format='{space:<{indent}}{short_flag:<{short_padding}}{long:<{long_padding}}{help}\n',
+                 indent=2, short_padding=6, long_padding=21, *args, **kwargs):
+        self.args = argp_args
+        self.format = format
+        self.indent = indent
+        self.format = format
+        self.short_padding = short_padding
+        self.long_padding = long_padding
+        self.msg = ''
+
+    def format_help(self):
+        for arg in self.args:
+            if isinstance(arg, Option):
+                # Default option format:
+                #   -v,  --version              Show program version
+                #   -sb, --sub                  Subscript text
+                self.msg += self.format.format(
+                    space=' ', indent=self.indent,
+                    short_padding=self.short_padding, long_padding=self.long_padding,
+                    short_flag=arg.short + ',', long=arg.long, help=arg.help)
+        return self.msg
+
 class HelpFormatter():
     DEFAULT_HEADER_FORMAT: str = inspect.cleandoc(
         '''
@@ -30,13 +55,14 @@ class HelpFormatter():
         {desc}\n
         {arg_defs}
         ''')
-    DEFAULT_INDICATOR = "Usage"
+    DEFAULT_INDICATOR = 'Usage'
 
     def __init__(self, arg_defs, prog='', usage='', desc='',
-                 indent=2,
-                 short_padding=6,
-                 long_padding=21,
+                 options_formatter = None,
                  usage_indicator=DEFAULT_INDICATOR, usage_format=DEFAULT_HEADER_FORMAT):
+                 # indent=2,
+                 # short_padding=6,
+                 # long_padding=21,
         self.arg_defs = arg_defs
         self.prog = prog
         self.usage = usage
@@ -44,9 +70,7 @@ class HelpFormatter():
         self.msg = ''
 
         # Format
-        self.indent = indent
-        self.short_padding = short_padding
-        self.long_padding = long_padding
+        self.options_formatter = OptionsFormatter(arg_defs) if options_formatter is None else options_formatter
         self.usage_indicator = usage_indicator
         self.usage_format = usage_format
 
@@ -106,18 +130,7 @@ class HelpFormatter():
                         cmd_options_msg += format
                 cmds_msg +=  '\n' + cmd_options_msg + '\n'
 
-            elif isinstance(arg_def, Option):
-                # Default option format:
-                #   -v,  --version              Show program version
-                #   -sb, --sub                  Subscript text
-                space = ' '
-                short = arg_def.short
-                long = arg_def.long
-                help = arg_def.help
-
-                short_flag = short + ','
-                format = f'{space:<{self.indent}}{short_flag:<{self.short_padding}}{long:<{self.long_padding}}{help}\n'
-                options_msg += format
+        options_msg += self.options_formatter.format_help()
 
         logger.debug(f'{prog=} {desc=} {usage=}')
         logger.debug(cmds_msg)
