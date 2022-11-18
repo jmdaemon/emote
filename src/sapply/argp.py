@@ -170,16 +170,27 @@ class HelpFormatter():
         print(self.msg)
         sys.exit(1)
 
+
+# A single component definition used for all options, and commands
+# class Comp():
+    # ''' Component common to all '''
+    # def __init__(self, id='', val='', flag=False, cb: typing.Callable = None, help=''):
+        # self.id = id
+        # self.val = val
+        # self.flag = flag
+        # self.ids: dict[str, str] = {}
+        # self.callback = cb
+        # self.help = help
+
 class Option():
-    def __init__(self, short: str, long: str, val='', flag=False, id='', callback: typing.Callable = None, help=''):
+    def __init__(self, short: str, long: str, val='', flag=False, id='', cb: typing.Callable = None, help=''):
         self.short = short
         self.long = long
-        self.val = val
         self.flag = flag
+        self.val = val
         self.ids: dict[str, str] = {}
-        self.callback = callback
+        self.callback = cb
         self.help = help
-
         self.set_id()
 
     def set_id(self):
@@ -219,35 +230,37 @@ class ArgParser():
             result = 'Argument ID Not Found'
         return result
 
-    def parse(self, argvs: list):
-        index = 1
-        logger.debug('Parsing arguments')
-        for argv in argvs:
-            logger.debug(f'Arg #{index}: {argv}')
-            # e.g: morse (cmd), i (short), italic (long), 'Argument ID Not Found' (argument)
-            arg: Command | Option | str = self.get_id(argv)
-            logger.debug(f'{arg=}')
+def argp_parse(argp: ArgParser, argvs: list):
+    ''' Parses the given command line arguments '''
+    index = 1
+    logger.debug('Parsing arguments')
+    for argv in argvs:
+        logger.debug(f'Arg #{index}: {argv}')
+        # e.g: morse (cmd), i (short), italic (long), 'Argument ID Not Found' (argument)
+        arg: Command | Option | str = argp.get_id(argv)
+        logger.debug(f'{arg=}')
 
-            if isinstance(arg, Command):
-                logger.debug('Is Command')
-                if arg.callback != None:
-                    arg.callback()
-                else:
-                    arg.parse(argv[index:])
-            elif isinstance(arg, Option):
-                logger.debug('Is Option')
-                if arg.callback != None:
-                    arg.callback()
-                else:
-                    # Index using the id, italic
-                    # self.arg_vals[arg.id] = True if arg.is_flag() else arg
-                    arg_id = arg.ids[argv]
-                    self.arg_vals[arg_id] = True if arg.is_flag() else arg
+        if isinstance(arg, Command):
+            logger.debug('Is Command')
+            if arg.callback != None:
+                arg.callback()
             else:
-                # Assume we are only left with an argument
-                logger.debug('Is Argument')
-                self.arguments.append(argv)
-            index += 1
+                argp_parse(argp, argv[index:])
+        elif isinstance(arg, Option):
+            logger.debug('Is Option')
+            if arg.callback != None:
+                arg.callback()
+            else:
+                # Index using the id, italic
+                # self.arg_vals[arg.id] = True if arg.is_flag() else arg
+                arg_id = arg.ids[argv]
+                argp.arg_vals[arg_id] = True if arg.is_flag() else arg
+        else:
+            # Assume we are only left with an argument
+            logger.debug('Is Argument')
+            argp.arguments.append(argv)
+        index += 1
+
 
 class Command(ArgParser):
     ''' Execute CLI Subcommands
@@ -255,10 +268,10 @@ class Command(ArgParser):
         - Have separate options, arguments, flags, subcommands separate from the main program.
         - Execute callback functions
     '''
-    def __init__(self, id: str, argp_args: list, callback: typing.Callable, help='', *args, **kwargs):
+    def __init__(self, id: str, argp_args: list, cb: typing.Callable, help='', *args, **kwargs):
         super().__init__(argp_args)
         self.id = id
-        self.callback = callback
+        self.callback = cb
         self.help = help
 
     # TODO: Recursive 
@@ -313,7 +326,7 @@ class Argp(ArgParser):
 
             # Add -h, --help option
             # TODO: Long options are broken
-            help_option = Option('-h', '--help', callback=self.help.show_usage, help='Show program usage')
+            help_option = Option('-h', '--help', cb=self.help.show_usage, help='Show program usage')
             args.append(help_option)
 
         super().__init__(args)
@@ -321,4 +334,4 @@ class Argp(ArgParser):
         self.desc = desc
 
     def parse(self):
-        super().parse(self.argv)
+        argp_parse(self, self.argv)
