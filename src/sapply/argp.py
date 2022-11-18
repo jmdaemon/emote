@@ -23,6 +23,25 @@ ArgParser = typing.NewType("ArgParser", None)
 Command = typing.NewType("Command", ArgParser)
 Argp = typing.NewType("Argp", ArgParser)
 
+def map_cli_id_defs(cli: list[Command | Option]):
+    '''
+    Maps the the command line interface definitions to a known identifier that
+        will be compared with arguments given to a program.
+    TODO:
+        Add feature to disable matching option-command identifier names
+    '''
+    defs = {}
+    for cli_def in cli:
+        if isinstance(cli_def, Option):
+            ids_dict = cli_def.ids
+            for flag, id in ids_dict.items():
+                logger.debug(f'{flag=}, {id=}')
+                defs[id] = cli_def
+        elif isinstance(cli_def, Command):
+            defs[cli_def.id] = cli_def
+
+    return defs
+
 class OptionsFormatter():
     ''' Formats command line options '''
     def __init__(self, argp_args: list,
@@ -184,15 +203,7 @@ class ArgParser():
         self.arg_defs: dict = {}
         self.arg_vals: dict = {}
         # logger.debug('ArgParser __init__')
-        for arg in self.args:
-            if isinstance(arg, Option):
-                ids_dict = arg.ids
-                for flag, id in ids_dict.items():
-                    logger.debug(f'{flag=}, {id=}')
-                    self.arg_defs[id] = arg
-
-            elif isinstance(arg, Command):
-                self.arg_defs[arg.id] = arg
+        self.arg_defs = map_cli_id_defs(self.args)
 
     def get_id(self, id):
         long = id[2:]
