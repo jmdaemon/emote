@@ -170,67 +170,31 @@ class HelpFormatter():
         print(self.msg)
         sys.exit(1)
 
-# Abstract Base Classes
-# A single component definition used for all options, and commands
-class ArgInterfaceComponent():
-    ''' Base class for an Argp Option/Command '''
-    # def __init__(self, id='', val='', flag=False, cb: typing.Callable = None, help=''):
-    def __init__(self, val: typing.Any = None, cb: typing.Callable = None, help=''):
-# val='', flag=False, 
-
-        # self.id = id
-
-        # self.val = val
-        # self.flag = flag
-
-        # TODO Create a separate ArgID data structure that maps the various identifies (short, long, command name,
-        # alternate flag name to a single common definition
-        # self.ids: dict[str, str] = {}
-        self.val = val
-        self.callback = cb
-        self.help = help
-
-# Concrete Derived Classes
-class Option(ArgInterfaceComponent):
-    # def __init__(self, short: str, long: str, val='', flag=False, id='', cb: typing.Callable = None, help=''):
-    # def __init__(self, short: str, long: str, val: typing.Any, flag=False, id='', *args, **kwargs):
-    def __init__(self, short: str, long: str, val: typing.Any = None, flag=False, *args, **kwargs):
+class Option():
+    def __init__(self, short: str, long: str, val: typing.Any = None, flag=False,
+                 cb: typing.Callable = None, help='', *args, **kwargs):
         super().__init__(*args, **kwargs)
         self.argids = ArgID(self, [short, long, id])
         self.flag = flag
         self.val = val
+        self.cb = cb
+        self.help = help
 
     def get_comp(self, id: str):
         return self.argids.get_comp(id)
 
-        # self.short = short
-        # self.long = long
-        # self.ids: dict[str, str] = {}
-
-
-
-        # self.callback = cb
-        # self.help = help
-        # self.set_id()
-
-    # def set_id(self):
-        # ''' Sets the option id from the longname specifier
-        # and defaults to the shortname if not specified '''
-
-        # if self.long[0:2] == '--':
-            # self.ids[self.long] = self.long[2:]
-        # self.ids[self.short] = self.short[1:]
-
     def is_flag(self):
         return True if self.flag else False
 
-class Command(ArgInterfaceComponent):
-    def __init__(self, id='', cli_defs: list = [], *args, **kwargs):
+class Command():
+    def __init__(self, id='', cli_defs: list = [],
+                 cb: typing.Callable = None, help='', *args, **kwargs):
         super().__init__(*args, **kwargs)
         self.cli_defs = cli_defs
         self.argids = ArgID(self, [id])
-        self.raw_args = []
         self.args = []
+        self.cb = cb
+        self.help = help
 
 class ArgID():
     ''' Maps many ids to a single common ArgInterfaceComponent
@@ -264,59 +228,11 @@ class ArgsMap():
             for id, comp in comp_map.items():
                 self.all_comp_ids.append(id)
                 self.all_comp_maps[id] = comp
-            # for id in ids:
-                # self.all_comp_ids.append(id)
 
     def get_comp(self, id: str):
         res = None if not self.all_comp_maps.__contains__(id) else self.all_comp_maps[id]
-        # return self.all_comp_maps[id]
         return res
 
-    # ''' Execute CLI Subcommands
-    # Commands should be able to:
-        # - Have separate options, arguments, flags, subcommands separate from the main program.
-        # - Execute callback functions
-    # '''
-    # def __init__(self, id: str, cli_defs: list, cb: typing.Callable, help='', *args, **kwargs):
-        # # super().__init__(cli_defs)
-        # self.id = id
-        # self.callback = cb
-        # self.help = help
-
-# class ArgParser(ArgInterfaceComponent):
-    # def __init__(self, cli_defs: list[Command | Option], help='', *args, **kwargs):
-        # super().__init__(*args, **kwargs)
-        # self.cli_defs = cli_defs
-        # self.raw_args = []
-        # self.args = []
-        # self.help = help
-
-    # def __init__(self, argp_args: list[Command | Option], help='', *args, **kwargs):
-        # self.args = argp_args
-
-        # Initialize the keywords for easy matching
-        # self.arguments: list[str] = []
-        # self.arg_defs: dict = map_cli_id_defs(self.args)
-        # self.arg_vals: dict = {}
-        # logger.debug('ArgParser __init__')
-
-    # def get_id(self, id):
-        # long = id[2:]
-        # short = id[1:]
-        # result: Command | Option | str
-        # if self.arg_defs.__contains__(id): # Command
-            # result = self.arg_defs[id]
-        # elif self.arg_defs.__contains__(long): # Long option
-            # result = self.arg_defs[long]
-        # elif self.arg_defs.__contains__(short): # Short option
-            # result = self.arg_defs[short]
-        # else:
-            # result = 'Argument ID Not Found'
-        # return result
-
-
-# def argp_parse(argp: ArgParser, argvs: list):
-# def argp_parse(argp: Command, argvs: list):
 def argp_parse(argp: ArgsMap, argvs: list):
     ''' Parses the given command line arguments '''
     index = 1
@@ -325,77 +241,53 @@ def argp_parse(argp: ArgsMap, argvs: list):
 
     for argv in argvs:
         logger.debug(f'Arg #{index}: {argv}')
-        # e.g: morse (cmd), i (short), italic (long), 'Argument ID Not Found' (argument)
-        # arg: Command | Option | str = argp.get_id(argv)
-        # argp.all_comp_ids
-        # arg: Command | Option = argp.argids.get_comp(argv)
+
         arg: Command | Option | None = argp.get_comp(argv)
+        logger.debug(f'Type: {type(arg)}')
         logger.debug(f'{arg=}')
 
         if isinstance(arg, Command):
-            logger.debug('Is Command')
-            if arg.callback != None:
-                arg.callback()
-            else:
-                # Since state is stored in the arguments themselves, we don't need to append this result to anything
-                pass
-                # argp_parse(arg, argv[index:])
-            active_comps.append(arg)
+            pass
+            # TODO: Parse the options on the Command ArgsMap
+            # Since state is stored in the arguments themselves, we don't need to append this result to anything
+            # argp_parse(arg, argv[index:])
+
         elif isinstance(arg, Option):
-            logger.debug('Is Option')
-            if arg.callback != None:
-                arg.callback()
-            else:
-                arg.val = True if arg.is_flag() else arg.val
+            arg.val = True if arg.is_flag() else arg.val
 
-                # arg.val = True if arg.is_flag() else arg
-                # Index using the id, italic
-                # self.arg_vals[arg.id] = True if arg.is_flag() else arg
-                # arg: Command | Option = argp.argids.get_comp(argv)
-                # arg_is_flag = arg.flag
-
-                # if arg.is_flag()
-
-                # arg_id = arg.ids[argv]
-                # argp.arg_vals[arg_id] = True if arg.is_flag() else arg
+        if arg is not None:
             active_comps.append(arg)
+            if arg.cb != None:
+                arg.cb()
+
         else:
             # Assume we are only left with an argument
             logger.debug('Is Argument')
-            # argp.arguments.append(argv)
             argp.args.append(argv)
         index += 1
     return active_comps
 
-
-
-
-'''
-Highly customizeable cli arguments parser
-
-This argument parsing library was created to address flaws in argparse,
-and direct parsing from sys.argv.
-
-Some gripes that I've found when using argparse are:
-    - Usage and other docstring names aren't capitalized, and are unable to be modified.
-    - Does not accept '-' or '--' as valid arguments (arguments will be "unknown" and will show the usage message)
-    - Only one subcommand/callback can be executed
-
-When doing direct custom parsing from sys.argv:
-    - Lots of tedious work to check inputs
-    - No help/usage string by default
-    - Awkward inputs & input handling
-    - Specific to your project/no code reuse between programs
-
-'''
-# class Argp(ArgParser):
-# class Argp(Command):
 class Argp():
-    # def __init__(self, args: list, usage='', desc='', help_formatter=None):
+    ''' Highly customizeable cli arguments parser
+
+        This argument parsing library was created to address flaws in argparse,
+        and direct parsing from sys.argv.
+
+        Some gripes that I've found when using argparse are:
+            - Usage and other docstring names aren't capitalized, and are unable to be modified.
+            - Does not accept '-' or '--' as valid arguments (arguments will be "unknown" and will show the usage message)
+            - Only one subcommand/callback can be executed
+
+        When doing direct custom parsing from sys.argv:
+            - Lots of tedious work to check inputs
+            - No help/usage string by default
+            - Awkward inputs & input handling
+            - Specific to your project/no code reuse between programs
+
+    '''
+
     def __init__(self, cli_defs: list, usage='', desc='', help_formatter=None):
         self.argp = ArgsMap(cli_defs)
-        # self.cli_defs = cli_defs
-        # self.main = Command(cli_defs=cli_defs)
 
         # Create HelpFormatter if not already made
         if help_formatter == None:
@@ -406,29 +298,5 @@ class Argp():
         self.raw_args = sys.argv[1:]
         self.desc = desc
 
-        # super().__init__(cli_defs=cli_defs)
-        # self.argv = sys.argv[1:]
-        # self.desc = desc
-
-        # if help_formatter == None:
-            # # self.help = HelpFormatter(arg_defs=args, prog=os.path.basename(sys.argv[0]), usage=usage, desc=desc)
-            # self.help = HelpFormatter(arg_defs=cli_defs, prog=os.path.basename(sys.argv[0]), usage=usage, desc=desc)
-
-            # # Add -h, --help option
-            # # TODO: Long options are broken
-            # help_option = Option('-h', '--help', cb=self.help.show_usage, help='Show program usage')
-            # cli_defs.append(help_option)
-            # # args.append(help_option)
-
-        # # super().__init__(args)
-        # # super().__init__(args)
-        # super().__init__(cli_defs=cli_defs)
-        # self.argv = sys.argv[1:]
-        # self.desc = desc
-
     def parse(self):
         return argp_parse(self.argp, self.raw_args)
-        # argp_parse(self.main, self.raw_args)
-        # argp_parse(self.main, self.raw_args)
-        # argp_parse(self, self.argv)
-        # argp_parse(self, self.argv)
