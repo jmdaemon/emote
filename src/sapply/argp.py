@@ -170,74 +170,166 @@ class HelpFormatter():
         print(self.msg)
         sys.exit(1)
 
-
+# Abstract Base Classes
 # A single component definition used for all options, and commands
-# class Comp():
-    # ''' Component common to all '''
+class ArgInterfaceComponent():
+    ''' Base class for an Argp Option/Command '''
     # def __init__(self, id='', val='', flag=False, cb: typing.Callable = None, help=''):
+    def __init__(self, val: typing.Any = None, cb: typing.Callable = None, help=''):
+# val='', flag=False, 
+
         # self.id = id
+
         # self.val = val
         # self.flag = flag
-        # self.ids: dict[str, str] = {}
-        # self.callback = cb
-        # self.help = help
 
-class Option():
-    def __init__(self, short: str, long: str, val='', flag=False, id='', cb: typing.Callable = None, help=''):
-        self.short = short
-        self.long = long
-        self.flag = flag
+        # TODO Create a separate ArgID data structure that maps the various identifies (short, long, command name,
+        # alternate flag name to a single common definition
+        # self.ids: dict[str, str] = {}
         self.val = val
-        self.ids: dict[str, str] = {}
         self.callback = cb
         self.help = help
-        self.set_id()
 
-    def set_id(self):
-        ''' Sets the option id from the longname specifier
-        and defaults to the shortname if not specified '''
+# Concrete Derived Classes
+class Option(ArgInterfaceComponent):
+    # def __init__(self, short: str, long: str, val='', flag=False, id='', cb: typing.Callable = None, help=''):
+    # def __init__(self, short: str, long: str, val: typing.Any, flag=False, id='', *args, **kwargs):
+    def __init__(self, short: str, long: str, val: typing.Any = None, flag=False, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        self.argids = ArgID(self, [short, long, id])
+        self.flag = flag
+        self.val = val
 
-        if self.long[0:2] == '--':
-            self.ids[self.long] = self.long[2:]
-        self.ids[self.short] = self.short[1:]
+    def get_comp(self, id: str):
+        return self.argids.get_comp(id)
+
+        # self.short = short
+        # self.long = long
+        # self.ids: dict[str, str] = {}
+
+
+
+        # self.callback = cb
+        # self.help = help
+        # self.set_id()
+
+    # def set_id(self):
+        # ''' Sets the option id from the longname specifier
+        # and defaults to the shortname if not specified '''
+
+        # if self.long[0:2] == '--':
+            # self.ids[self.long] = self.long[2:]
+        # self.ids[self.short] = self.short[1:]
 
     def is_flag(self):
         return True if self.flag else False
 
-class ArgParser():
-    def __init__(self, argp_args: list[Command | Option], help='', *args, **kwargs):
-        self.args = argp_args
-        self.help = help
+class Command(ArgInterfaceComponent):
+    def __init__(self, id='', cli_defs: list = [], *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        self.cli_defs = cli_defs
+        self.argids = ArgID(self, [id])
+        self.raw_args = []
+        self.args = []
+
+class ArgID():
+    ''' Maps many ids to a single common ArgInterfaceComponent
+
+    Allows you to retrieve an Option/Command definition using either the shortname, longname, or command id
+    '''
+    def __init__(self, comp: Command | Option, comp_ids=[]):
+        self.comp_ids = comp_ids
+        self.comp = comp
+        self.comp_map: dict[str, Command | Option] = {}
+
+        # Populate the comp_map with the various ids
+        for comp_id in self.comp_ids:
+            self.comp_map[comp_id] = self.comp
+
+    def get_comp(self, id: str):
+        return self.comp_map[id]
+
+# Flattens the ids of options, commands into a single dict
+class ArgsMap():
+    def __init__(self, cli_defs: list):
+        self.all_comp_ids = []
+        self.all_comp_maps = {}
+        # self.raw_args = []
+        self.args = []
+
+        # Flatten all the ids into a single dict mapping
+        cli_def: Command | Option
+        for cli_def in cli_defs:
+            comp_map = cli_def.argids.comp_map
+            for id, comp in comp_map.items():
+                self.all_comp_ids.append(id)
+                self.all_comp_maps[id] = comp
+            # for id in ids:
+                # self.all_comp_ids.append(id)
+
+    def get_comp(self, id: str):
+        res = None if not self.all_comp_maps.__contains__(id) else self.all_comp_maps[id]
+        # return self.all_comp_maps[id]
+        return res
+
+    # ''' Execute CLI Subcommands
+    # Commands should be able to:
+        # - Have separate options, arguments, flags, subcommands separate from the main program.
+        # - Execute callback functions
+    # '''
+    # def __init__(self, id: str, cli_defs: list, cb: typing.Callable, help='', *args, **kwargs):
+        # # super().__init__(cli_defs)
+        # self.id = id
+        # self.callback = cb
+        # self.help = help
+
+# class ArgParser(ArgInterfaceComponent):
+    # def __init__(self, cli_defs: list[Command | Option], help='', *args, **kwargs):
+        # super().__init__(*args, **kwargs)
+        # self.cli_defs = cli_defs
+        # self.raw_args = []
+        # self.args = []
+        # self.help = help
+
+    # def __init__(self, argp_args: list[Command | Option], help='', *args, **kwargs):
+        # self.args = argp_args
 
         # Initialize the keywords for easy matching
-        self.arguments: list[str] = []
-        self.arg_defs: dict = {}
-        self.arg_vals: dict = {}
+        # self.arguments: list[str] = []
+        # self.arg_defs: dict = map_cli_id_defs(self.args)
+        # self.arg_vals: dict = {}
         # logger.debug('ArgParser __init__')
-        self.arg_defs = map_cli_id_defs(self.args)
 
-    def get_id(self, id):
-        long = id[2:]
-        short = id[1:]
-        result: Command | Option | str
-        if self.arg_defs.__contains__(id): # Command
-            result = self.arg_defs[id]
-        elif self.arg_defs.__contains__(long): # Long option
-            result = self.arg_defs[long]
-        elif self.arg_defs.__contains__(short): # Short option
-            result = self.arg_defs[short]
-        else:
-            result = 'Argument ID Not Found'
-        return result
+    # def get_id(self, id):
+        # long = id[2:]
+        # short = id[1:]
+        # result: Command | Option | str
+        # if self.arg_defs.__contains__(id): # Command
+            # result = self.arg_defs[id]
+        # elif self.arg_defs.__contains__(long): # Long option
+            # result = self.arg_defs[long]
+        # elif self.arg_defs.__contains__(short): # Short option
+            # result = self.arg_defs[short]
+        # else:
+            # result = 'Argument ID Not Found'
+        # return result
 
-def argp_parse(argp: ArgParser, argvs: list):
+
+# def argp_parse(argp: ArgParser, argvs: list):
+# def argp_parse(argp: Command, argvs: list):
+def argp_parse(argp: ArgsMap, argvs: list):
     ''' Parses the given command line arguments '''
     index = 1
     logger.debug('Parsing arguments')
+    active_comps = []
+
     for argv in argvs:
         logger.debug(f'Arg #{index}: {argv}')
         # e.g: morse (cmd), i (short), italic (long), 'Argument ID Not Found' (argument)
-        arg: Command | Option | str = argp.get_id(argv)
+        # arg: Command | Option | str = argp.get_id(argv)
+        # argp.all_comp_ids
+        # arg: Command | Option = argp.argids.get_comp(argv)
+        arg: Command | Option | None = argp.get_comp(argv)
         logger.debug(f'{arg=}')
 
         if isinstance(arg, Command):
@@ -245,61 +337,38 @@ def argp_parse(argp: ArgParser, argvs: list):
             if arg.callback != None:
                 arg.callback()
             else:
-                argp_parse(argp, argv[index:])
+                # Since state is stored in the arguments themselves, we don't need to append this result to anything
+                pass
+                # argp_parse(arg, argv[index:])
+            active_comps.append(arg)
         elif isinstance(arg, Option):
             logger.debug('Is Option')
             if arg.callback != None:
                 arg.callback()
             else:
+                arg.val = True if arg.is_flag() else arg.val
+
+                # arg.val = True if arg.is_flag() else arg
                 # Index using the id, italic
                 # self.arg_vals[arg.id] = True if arg.is_flag() else arg
-                arg_id = arg.ids[argv]
-                argp.arg_vals[arg_id] = True if arg.is_flag() else arg
+                # arg: Command | Option = argp.argids.get_comp(argv)
+                # arg_is_flag = arg.flag
+
+                # if arg.is_flag()
+
+                # arg_id = arg.ids[argv]
+                # argp.arg_vals[arg_id] = True if arg.is_flag() else arg
+            active_comps.append(arg)
         else:
             # Assume we are only left with an argument
             logger.debug('Is Argument')
-            argp.arguments.append(argv)
+            # argp.arguments.append(argv)
+            argp.args.append(argv)
         index += 1
+    return active_comps
 
 
-class Command(ArgParser):
-    ''' Execute CLI Subcommands
-    Commands should be able to:
-        - Have separate options, arguments, flags, subcommands separate from the main program.
-        - Execute callback functions
-    '''
-    def __init__(self, id: str, argp_args: list, cb: typing.Callable, help='', *args, **kwargs):
-        super().__init__(argp_args)
-        self.id = id
-        self.callback = cb
-        self.help = help
 
-    # TODO: Recursive 
-    # def format_help(self, msg=''):
-        # for arg_def in self.arg_defs:
-            # if isinstance(arg_def, Command):
-                # # Format commands like this for now:
-                # # id        help
-                # # TODO: Support sub options in commands
-                # # In the future, we want commands like
-                # # id        help
-                # #   short, long         help
-                # #   short, long         help
-                # format = ''
-                # cmds_msg += format
-            # elif isinstance(arg_def, Option):
-                # # Default option format:
-                # #   -v,  --version              Show program version
-                # #   -sb, --sub                  Subscript text
-                # space = ' '
-                # short = arg_def.short
-                # long = arg_def.long
-                # help = arg_def.help
-
-                # short_flag = short + ','
-                # format = f'{space:<2}{short_flag:<6}{long:<21}{help}\n'
-                # options_msg += format
-        # pass
 
 '''
 Highly customizeable cli arguments parser
@@ -319,19 +388,47 @@ When doing direct custom parsing from sys.argv:
     - Specific to your project/no code reuse between programs
 
 '''
-class Argp(ArgParser):
-    def __init__(self, args: list, usage='', desc='', help_formatter=None):
+# class Argp(ArgParser):
+# class Argp(Command):
+class Argp():
+    # def __init__(self, args: list, usage='', desc='', help_formatter=None):
+    def __init__(self, cli_defs: list, usage='', desc='', help_formatter=None):
+        self.argp = ArgsMap(cli_defs)
+        # self.cli_defs = cli_defs
+        # self.main = Command(cli_defs=cli_defs)
+
+        # Create HelpFormatter if not already made
         if help_formatter == None:
-            self.help = HelpFormatter(arg_defs=args, prog=os.path.basename(sys.argv[0]), usage=usage, desc=desc)
-
-            # Add -h, --help option
-            # TODO: Long options are broken
+            self.help = HelpFormatter(arg_defs=cli_defs, prog=os.path.basename(sys.argv[0]), usage=usage, desc=desc)
             help_option = Option('-h', '--help', cb=self.help.show_usage, help='Show program usage')
-            args.append(help_option)
+            cli_defs.append(help_option)
 
-        super().__init__(args)
-        self.argv = sys.argv[1:]
+        self.raw_args = sys.argv[1:]
         self.desc = desc
 
+        # super().__init__(cli_defs=cli_defs)
+        # self.argv = sys.argv[1:]
+        # self.desc = desc
+
+        # if help_formatter == None:
+            # # self.help = HelpFormatter(arg_defs=args, prog=os.path.basename(sys.argv[0]), usage=usage, desc=desc)
+            # self.help = HelpFormatter(arg_defs=cli_defs, prog=os.path.basename(sys.argv[0]), usage=usage, desc=desc)
+
+            # # Add -h, --help option
+            # # TODO: Long options are broken
+            # help_option = Option('-h', '--help', cb=self.help.show_usage, help='Show program usage')
+            # cli_defs.append(help_option)
+            # # args.append(help_option)
+
+        # # super().__init__(args)
+        # # super().__init__(args)
+        # super().__init__(cli_defs=cli_defs)
+        # self.argv = sys.argv[1:]
+        # self.desc = desc
+
     def parse(self):
-        argp_parse(self, self.argv)
+        return argp_parse(self.argp, self.raw_args)
+        # argp_parse(self.main, self.raw_args)
+        # argp_parse(self.main, self.raw_args)
+        # argp_parse(self, self.argv)
+        # argp_parse(self, self.argv)

@@ -128,20 +128,47 @@ def main():
     logger.add(sys.stdout, format=PROGRAM_LOG_MSG_FORMAT, level=loglevel)
 
     argp = build_cli()
-    argp.parse()
+    active_comps: list = argp.parse()
 
-    text = argp.arguments[0]
-    logger.debug(argp.arg_vals)
+    # text = argp.args[0]
+
+    # Arguments and the activated components
+    args = argp.argp.args
+
+    logger.debug(args)
+    # text = argp.argp.args[0]
+    # logger.debug(argp.arg_vals)
 
     out: str = ''
+
+    # Check every option, and apply the effect to the argument
+
+    # For every argument
+    for argument in args:
+
+        # Apply the correct effect
+        # for 
+        comp: Option | Command
+        for comp in active_comps:
+            if comp.val is not None:
+                effect_id = comp.val
+                logger.debug(f'{effect_id=}')
+                out = apply_effects(effect_id, argument, effect_id)
+
+                if (out != ''):
+                    show(out)
+
+        # print(argument)
+
+
     # For all options set
-    for _, val in argp.arg_vals.items():
-        key_id = val.short
-        cmap = val.val
-        # cmap = argp.arg_defs[key_id].val
-        # cmap = argp.get_id(key_id).val
-        logger.debug(f'{cmap=}')
-        # out = match_effects(key_id, text)
-        out = apply_effects(key_id, text, cmap)
-        if (out != ''):
-            show(out)
+    # for _, val in argp.arg_vals.items():
+        # key_id = val.short
+        # cmap = val.val
+        # # cmap = argp.arg_defs[key_id].val
+        # # cmap = argp.get_id(key_id).val
+        # logger.debug(f'{cmap=}')
+        # # out = match_effects(key_id, text)
+        # out = apply_effects(key_id, text, cmap)
+        # if (out != ''):
+            # show(out)
