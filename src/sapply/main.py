@@ -12,7 +12,7 @@ from wora.cli import reset_sigpipe_handling
 from loguru import logger
 
 # Standard library
-import argparse, typing, pkg_resources, os, re, sys
+import pkg_resources, os, re, sys
 
 reset_sigpipe_handling()
 
@@ -80,6 +80,9 @@ def build_cli():
         Option('-h' , '--convert-html'  , help='Converts text to html unicode characters'),
     ]
 
+    def flip_cb(text: str):
+        flip(text)
+
     zalgo_options = [
         Option('-u' , '--up'        , help='Effect extends upwards from text'),
         Option('-m' , '--mid'       , help='Effect only the centre text'),
@@ -89,7 +92,7 @@ def build_cli():
 
     options = [
         # Commands
-        Command('flip', flip_options, lambda x: x, help='Flips text upside down'),
+        Command('flip', flip_options, flip_cb, help='Flips text upside down'),
         Command('morse', morse_options, lambda x: x, help='Convert to and from ASCII and morse code'),
         Command('zalgo', zalgo_options, lambda x: x, help='Applies zalgo effect to text'),
         # Global CLI Options

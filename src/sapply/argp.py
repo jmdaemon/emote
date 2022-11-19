@@ -23,25 +23,6 @@ ArgParser = typing.NewType("ArgParser", None)
 Command = typing.NewType("Command", ArgParser)
 Argp = typing.NewType("Argp", ArgParser)
 
-def map_cli_id_defs(cli: list[Command | Option]):
-    '''
-    Maps the the command line interface definitions to a known identifier that
-        will be compared with arguments given to a program.
-    TODO:
-        Add feature to disable matching option-command identifier names
-    '''
-    defs = {}
-    for cli_def in cli:
-        if isinstance(cli_def, Option):
-            ids_dict = cli_def.ids
-            for flag, id in ids_dict.items():
-                logger.debug(f'{flag=}, {id=}')
-                defs[id] = cli_def
-        elif isinstance(cli_def, Command):
-            defs[cli_def.id] = cli_def
-
-    return defs
-
 class OptionsFormatter():
     ''' Formats command line options '''
     def __init__(self, argp_args: list,
@@ -173,7 +154,6 @@ class HelpFormatter():
 class Option():
     def __init__(self, short: str, long: str, val: typing.Any = None, flag=False,
                  cb: typing.Callable = None, help='', *args, **kwargs):
-        super().__init__(*args, **kwargs)
         self.argids = ArgID(self, [short, long, id])
         self.flag = flag
         self.val = val
@@ -189,7 +169,6 @@ class Option():
 class Command():
     def __init__(self, id='', cli_defs: list = [],
                  cb: typing.Callable = None, help='', *args, **kwargs):
-        super().__init__(*args, **kwargs)
         self.cli_defs = cli_defs
         self.argids = ArgID(self, [id])
         self.args = []
@@ -234,37 +213,32 @@ class ArgsMap():
         return res
 
 def argp_parse(argp: ArgsMap, argvs: list):
-    ''' Parses the given command line arguments '''
-    index = 1
+    ''' Parses the given command line arguments and returns a list of the active cli components '''
     logger.debug('Parsing arguments')
     active_comps = []
 
+    index = 0
     for argv in argvs:
-        logger.debug(f'Arg #{index}: {argv}')
-
+        logger.debug(f'Argument #{index + 1}: {argv}')
         arg: Command | Option | None = argp.get_comp(argv)
+
         logger.debug(f'Type: {type(arg)}')
         logger.debug(f'{arg=}')
 
         if isinstance(arg, Command):
-            pass
-            # TODO: Parse the options on the Command ArgsMap
-            # Since state is stored in the arguments themselves, we don't need to append this result to anything
-            # argp_parse(arg, argv[index:])
+            nested_argmap = ArgsMap(arg.cli_defs)
+            active_comps += argp_parse(nested_argmap, argvs[index:])
 
         elif isinstance(arg, Option):
             arg.val = True if arg.is_flag() else arg.val
 
-        if arg is not None:
+        if arg != None:
             active_comps.append(arg)
             if arg.cb != None:
                 arg.cb()
-
         else:
-            # Assume we are only left with an argument
-            logger.debug('Is Argument')
-            argp.args.append(argv)
-        index += 1
+            argp.args += argv
+    index += 1
     return active_comps
 
 class Argp():
