@@ -167,6 +167,7 @@ class Option():
         return True if self.flag else False
 
 class Command():
+    ''' Contains sub options '''
     def __init__(self, id='', cli_defs: list = [],
                  cb: typing.Callable = None, help='', *args, **kwargs):
         self.cli_defs = cli_defs
