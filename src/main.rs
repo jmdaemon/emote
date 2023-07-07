@@ -36,18 +36,11 @@ fn main() {
 
     if cli.verbose {
         let subscriber = FmtSubscriber::builder()
-        // all spans/events with a level higher than TRACE (e.g, debug, info, warn, etc.)
-        // will be written to stdout.
         .with_max_level(Level::TRACE)
-        // completes the builder.
         .finish();
 
         tracing::subscriber::set_global_default(subscriber)
-            .expect("setting default subscriber failed");
-
-        //tracing::level_filters::LevelFilter::from_level(tracing::Level::TRACE);
-        //tracing::level_filters::LevelFilter::current();
-        // TODO: Enable logging
+            .expect("Setting global default subscriber failed");
     }
     info!("Settings: ");
     info!("\tVerbose: {}", cli.verbose);
