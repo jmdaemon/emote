@@ -15,22 +15,22 @@ pub struct CLI {
     pub mode: Option<Modes>,
 }
 
-#[derive(Subcommand)]
-pub enum TextformCommands {
-    Zalgo {},
-    Strikethrough {},
-    BoldItalicSans {},
-    BoldItalic {},
-    BoldSans {},
-    Bold {},
-    ItalicSans {},
-    Italic {},
-    DoubleStruck {},
-    Medieval {},
-    Monospace {},
-    OldEnglish {},
-    Subscript {},
-    Superscript {}
+#[derive(Copy, Clone, Debug, PartialEq, Eq, PartialOrd, Ord, ValueEnum)]
+pub enum TextformType {
+    Zalgo,
+    Strikethrough,
+    BoldItalicSans,
+    BoldItalic,
+    BoldSans,
+    Bold,
+    ItalicSans,
+    Italic,
+    DoubleStruck,
+    Medieval,
+    Monospace,
+    OldEnglish,
+    Subscript,
+    Superscript
 }
 
 #[derive(Subcommand)]
@@ -38,8 +38,8 @@ pub enum CliCommands {
     Tmote {},
     Emoji {},
     Textform {
-        #[command(subcommand)]
-        command: Option<TextformCommands>,
+        #[arg(value_enum)]
+        textform_type: TextformType,
 
         #[arg(value_name = "TEXT")]
         text: String,
