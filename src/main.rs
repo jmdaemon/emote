@@ -1,4 +1,4 @@
-use std::{process::exit, fs};
+use std::fs;
 
 use emote::app::{CLI, Modes, CliCommands, TextformType};
 use clap::Parser;
@@ -41,16 +41,6 @@ fn main() {
                 Some(CliCommands::Tmote {  }) => {}
                 Some(CliCommands::Emoji {  }) => {}
                 Some(CliCommands::Textform { textform_type, text } ) => {
-
-                    //let tuple = if let Some(tuple) = command {
-                        //tuple
-                    //} else {
-                        //eprintln!("Error: No command was given.");
-                        //// TODO: Show usage
-                        //exit(1);
-                    //};
-                    //let (cmd, text) = tuple;
-
                     let json_store = get_json_store(textform_type);
                     let json_file = format!("resources/{}", json_store);
                     let json_file_conts = fs::read_to_string(json_file).expect("Error: File could not be found");
