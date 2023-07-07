@@ -15,7 +15,7 @@ type DataStore = phf::Map<&'static str, &'static str>;
 // Constants
 const NO_MAP: DataStore = phf_map!{};
 
-fn get_json_store(textform_type: TextformType) -> &'static DataStore {
+fn get_data_store(textform_type: TextformType) -> &'static DataStore {
     match textform_type {
         TextformType::Zalgo => &NO_MAP,
         TextformType::Strikethrough => &NO_MAP,
@@ -53,7 +53,7 @@ fn main() {
                 Some(CliCommands::Tmote {  }) => {}
                 Some(CliCommands::Emoji {  }) => {}
                 Some(CliCommands::Textform { textform_type, text } ) => {
-                    let hmap = get_json_store(textform_type);
+                    let hmap = get_data_store(textform_type);
 
                     let mut output: String = String::with_capacity(text.len());
                     
