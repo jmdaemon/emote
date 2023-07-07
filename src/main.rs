@@ -73,8 +73,8 @@ fn main() {
                 _ => {}
             }
         }
-        Some(Modes::Gui { }) => {}
         Some(Modes::File { }) => {}
+        Some(Modes::Gui { }) => {}
         _ => {}
     }
 }
