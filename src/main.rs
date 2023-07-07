@@ -1,30 +1,37 @@
-use std::fs;
-
+use phf::phf_map;
 use tracing::{debug, error, info, span, warn, Level, subscriber};
 use tracing_subscriber::FmtSubscriber;
-use emote::app::{CLI, Modes, CliCommands, TextformType};
+use emote::{app::{CLI, Modes, CliCommands, TextformType}};
 use clap::Parser;
 use indexmap::IndexMap;
 use serde_json::Value;
 
-fn get_json_store(textform_type: TextformType) -> String {
-    let basename = match textform_type {
-        TextformType::Zalgo => "",
-        TextformType::Strikethrough => "",
-        TextformType::BoldItalicSans => "bold-italic-sans",
-        TextformType::BoldItalic => "italic-bold",
-        TextformType::BoldSans => "bold-sans",
-        TextformType::Bold => "bold",
-        TextformType::ItalicSans => "italic-sans",
-        TextformType::Italic => "italic",
-        TextformType::DoubleStruck => "doublestruck",
-        TextformType::Medieval => "medieval",
-        TextformType::Monospace => "monospace",
-        TextformType::OldEnglish => "old-eng",
-        TextformType::Subscript => "subscripts",
-        TextformType::Superscript => "superscript"
-    };
-    basename.to_string() + ".json"
+// Include resources
+include!(concat!(env!("OUT_DIR"), "/resources.rs"));
+
+// Types
+type DataStore = phf::Map<&'static str, &'static str>;
+
+// Constants
+const NO_MAP: DataStore = phf_map!{};
+
+fn get_json_store(textform_type: TextformType) -> &'static DataStore {
+    match textform_type {
+        TextformType::Zalgo => &NO_MAP,
+        TextformType::Strikethrough => &NO_MAP,
+        TextformType::BoldItalicSans => &BOLD_ITALIC_SANS,
+        TextformType::BoldItalic => &BOLD_ITALIC,
+        TextformType::BoldSans => &BOLD_SANS,
+        TextformType::Bold => &BOLD,
+        TextformType::ItalicSans => &ITALIC_SANS,
+        TextformType::Italic => &ITALIC,
+        TextformType::DoubleStruck => &DOUBLESTRUCK,
+        TextformType::Medieval => &MEDIEVAL,
+        TextformType::Monospace => &MONOSPACE,
+        TextformType::OldEnglish => &OLD_ENGLISH,
+        TextformType::Subscript => &SUBSCRIPT,
+        TextformType::Superscript => &SUPERSCRIPT,
+    }
 }
 
 fn json_to_hashmap(json: &str) -> Result<IndexMap<String, Value>, serde_json::Error> {
@@ -50,17 +57,14 @@ fn main() {
                 Some(CliCommands::Tmote {  }) => {}
                 Some(CliCommands::Emoji {  }) => {}
                 Some(CliCommands::Textform { textform_type, text } ) => {
-                    let json_store = get_json_store(textform_type);
-                    let json_file = format!("resources/{}", json_store);
-                    let json_file_conts = fs::read_to_string(json_file).expect("Error: File could not be found");
-                    let hmap = json_to_hashmap(&json_file_conts).expect("Error: Could not parse json file");
+                    let hmap = get_json_store(textform_type);
 
                     let mut output: String = String::with_capacity(text.len());
                     
                     for char in text.chars() {
                         let string_char = String::from(char);
-                        if let Some(val) = hmap.get(&string_char) {
-                            output += val.as_str().unwrap();
+                        if let Some(val) = hmap.get(&string_char).cloned() {
+                            output += val;
                         }
                     }
 
