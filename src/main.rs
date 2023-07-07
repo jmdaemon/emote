@@ -1,10 +1,9 @@
 use phf::phf_map;
+#[allow(unused_imports)]
 use tracing::{debug, error, info, span, warn, Level, subscriber};
 use tracing_subscriber::FmtSubscriber;
-use emote::{app::{CLI, Modes, CliCommands, TextformType}};
+use emote::app::{CLI, Modes, CliCommands, TextformType};
 use clap::Parser;
-use indexmap::IndexMap;
-use serde_json::Value;
 
 // Include resources
 include!(concat!(env!("OUT_DIR"), "/resources.rs"));
@@ -34,15 +33,28 @@ fn get_data_store(textform_type: TextformType) -> &'static DataStore {
     }
 }
 
+fn textform(textform_type: TextformType, text: String) -> String {
+    let hmap = get_data_store(textform_type);
+    let mut output: String = String::with_capacity(text.len());
+    
+    for char in text.chars() {
+        let string_char = String::from(char);
+        if let Some(val) = hmap.get(&string_char).cloned() {
+            output += val;
+        }
+    }
+    output
+}
+
 fn main() {
     let cli = CLI::parse();
 
     if cli.verbose {
         let subscriber = FmtSubscriber::builder()
-        .with_max_level(Level::TRACE)
-        .finish();
+            .with_max_level(Level::TRACE)
+            .finish();
 
-        tracing::subscriber::set_global_default(subscriber)
+        subscriber::set_global_default(subscriber)
             .expect("Setting global default subscriber failed");
     }
     info!("Settings: ");
@@ -53,24 +65,13 @@ fn main() {
                 Some(CliCommands::Tmote {  }) => {}
                 Some(CliCommands::Emoji {  }) => {}
                 Some(CliCommands::Textform { textform_type, text } ) => {
-                    let hmap = get_data_store(textform_type);
-
-                    let mut output: String = String::with_capacity(text.len());
-                    
-                    for char in text.chars() {
-                        let string_char = String::from(char);
-                        if let Some(val) = hmap.get(&string_char).cloned() {
-                            output += val;
-                        }
-                    }
-
+                    let output = textform(textform_type, text);
                     println!("{}", output);
                 }
                 Some(CliCommands::Nato {  }) => {}
                 Some(CliCommands::Morse {  }) => {}
                 _ => {}
             }
-
         }
         Some(Modes::Gui { }) => {}
         Some(Modes::File { }) => {}
