@@ -34,10 +34,6 @@ fn get_json_store(textform_type: TextformType) -> &'static DataStore {
     }
 }
 
-fn json_to_hashmap(json: &str) -> Result<IndexMap<String, Value>, serde_json::Error> {
-    Ok(serde_json::from_str(json).unwrap())
-}
-
 fn main() {
     let cli = CLI::parse();
 
