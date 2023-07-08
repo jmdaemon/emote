@@ -7,6 +7,7 @@ edition = "2021"
 
 [dependencies]
 clap = { version = "4.3.11", features = ["derive"] }
+clipboard = "0.5.0"
 const_format = "0.2.31"
 indexmap = { version = "2.0.0", features = ["serde"] }
 phf = { version = "0.11.2", features = ["macros"] }
