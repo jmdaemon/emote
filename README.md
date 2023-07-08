@@ -18,13 +18,16 @@ cargo build
 
 ``` bash
 # Using the command-line interface
-emote cli textform bold "Your text"
+emote cli textform bold "[text]"
 
 # Copy to clipboard
-emote -clip cli textform bold "Your text"
+emote --clip cli textform bold "[text]"
+
+# Use a custom character map
+emote cli custom -f "[path]" "[text]"
 
 # View debug information
-emote -v cli textform bold "Your text"
+emote -v cli textform bold "[text]"
 
 # Using the gui
 emote gui
@@ -44,8 +47,6 @@ emote file "prompt.txt"
 - Add mapping for morse?
     - It might be better to create a separate binary for morse instead.
 - Implement zalgo with additional settings to adjust
-- Implement copy to clipboard
-- Implement arbitrary json file parsing
 
 - Create library modules
 
