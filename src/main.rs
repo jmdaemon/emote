@@ -39,7 +39,7 @@ fn get_data_store(textform_type: TextformType) -> &'static DataStore {
 // in the background so we can actually paste the contents of the clipboard
 fn copy_to_clipboard(conts: String) {
     clipboard_ext::x11_fork::ClipboardContext::new().unwrap()
-    .set_contents(conts).unwrap();
+        .set_contents(conts).unwrap();
 }
 
 fn textform(textform_type: TextformType, text: String) -> String {
