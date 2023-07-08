@@ -4,7 +4,7 @@ use tracing::{debug, error, info, span, warn, Level, subscriber};
 use tracing_subscriber::FmtSubscriber;
 use emote::app::{CLI, Modes, CliCommands, TextformType};
 use clap::Parser;
-use clipboard::{ClipboardContext, ClipboardProvider};
+use clipboard::ClipboardProvider;
 
 // Include resources
 include!(concat!(env!("OUT_DIR"), "/resources.rs"));
@@ -35,9 +35,11 @@ fn get_data_store(textform_type: TextformType) -> &'static DataStore {
     }
 }
 
+// NOTE: When we copy the contents to our clipboard, we need to fork our process and keep it running
+// in the background so we can actually paste the contents of the clipboard
 fn copy_to_clipboard(conts: String) {
-    let mut clipboard: ClipboardContext = ClipboardProvider::new().unwrap();
-    clipboard.set_contents(conts).expect("Error: Could not copy to clipboard");
+    clipboard_ext::x11_fork::ClipboardContext::new().unwrap()
+    .set_contents(conts).unwrap();
 }
 
 fn textform(textform_type: TextformType, text: String) -> String {
@@ -73,7 +75,7 @@ fn main() {
                 Some(CliCommands::Emoji {  }) => {}
                 Some(CliCommands::Textform { textform_type, text } ) => {
                     let output = textform(textform_type, text);
-                    if (cli.clip) {
+                    if cli.clip {
                         copy_to_clipboard(output);
                     } else {
                         println!("{}", output);
