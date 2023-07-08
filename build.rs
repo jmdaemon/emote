@@ -23,6 +23,9 @@ const RESOURCES_CONTS: phf::Map<&'static str, &'static str> = phf_map! {
 const RESOURCE_FILE_NAME: &str = "resources.rs";
 
 fn main () {
+    // Output to our src directory
+    //env::set_var("OUT_DIR", "src");
+
     // Ensure the resources file can be written to
     let path = Path::new(&env::var("OUT_DIR").unwrap()).join(RESOURCE_FILE_NAME);
     let mut file = File::create(path)

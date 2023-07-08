@@ -4,9 +4,11 @@ use tracing::{debug, error, info, span, warn, Level, subscriber};
 use tracing_subscriber::FmtSubscriber;
 use emote::app::{CLI, Modes, CliCommands, TextformType};
 use clap::Parser;
+use clipboard::ClipboardProvider;
 
 // Include resources
 include!(concat!(env!("OUT_DIR"), "/resources.rs"));
+#[allow(unused)]
 
 // Types
 type DataStore = phf::Map<&'static str, &'static str>;
@@ -31,6 +33,13 @@ fn get_data_store(textform_type: TextformType) -> &'static DataStore {
         TextformType::Subscript => &SUBSCRIPT,
         TextformType::Superscript => &SUPERSCRIPT,
     }
+}
+
+// NOTE: When we copy the contents to our clipboard, we need to fork our process and keep it running
+// in the background so we can actually paste the contents of the clipboard
+fn copy_to_clipboard(conts: String) {
+    clipboard_ext::x11_fork::ClipboardContext::new().unwrap()
+    .set_contents(conts).unwrap();
 }
 
 fn textform(textform_type: TextformType, text: String) -> String {
@@ -66,7 +75,11 @@ fn main() {
                 Some(CliCommands::Emoji {  }) => {}
                 Some(CliCommands::Textform { textform_type, text } ) => {
                     let output = textform(textform_type, text);
-                    println!("{}", output);
+                    if cli.clip {
+                        copy_to_clipboard(output);
+                    } else {
+                        println!("{}", output);
+                    }
                 }
                 Some(CliCommands::Nato {  }) => {}
                 Some(CliCommands::Morse {  }) => {}
