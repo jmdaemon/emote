@@ -214,7 +214,6 @@ dependencies = [
  "clipboard",
  "clipboard-ext",
  "const_format",
- "fork",
  "indexmap",
  "phf",
  "phf_codegen",
@@ -258,15 +257,6 @@ source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "d32e9bd16cc02eae7db7ef620b392808b89f6a5e16bb3497d159c6b92a0f4f86"
 dependencies = [
  "backtrace",
-]
-
-[[package]]
-name = "fork"
-version = "0.1.22"
-source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "bf2ca97a59201425e7ee4d197c9c4fea282fe87a97d666a580bda889b95b8e88"
-dependencies = [
- "libc",
 ]
 
 [[package]]
