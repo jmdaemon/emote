@@ -1,3 +1,5 @@
+use std::path::PathBuf;
+
 use clap::{Parser, arg, Subcommand, ValueEnum};
 
 const PROGRAM_DESCRIPTION: &str = "";
@@ -46,6 +48,13 @@ pub enum CliCommands {
     },
     Nato {},
     Morse {},
+    Custom {
+        #[arg(short, long, value_name = "FILEPATH", help="Filepath of the character map")]
+        fpath: PathBuf,
+
+        #[arg(value_name = "TEXT")]
+        text: String,
+    }
 }
 
 #[derive(Subcommand)]

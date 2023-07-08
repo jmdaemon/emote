@@ -44,8 +44,6 @@ emote file "prompt.txt"
 - Add mapping for morse?
     - It might be better to create a separate binary for morse instead.
 - Implement zalgo with additional settings to adjust
-- Implement copy to clipboard
-- Implement arbitrary json file parsing
 
 - Create library modules
 
