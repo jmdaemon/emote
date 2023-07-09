@@ -26,6 +26,9 @@ emote --clip cli textform bold "[text]"
 # Use a custom character map
 emote cli custom -f "[path]" "[text]"
 
+# Convert text on whole words instead of character-by-character
+emote cli custom -f "[path]" -w "[text]"
+
 # View debug information
 emote -v cli textform bold "[text]"
 
@@ -57,7 +60,6 @@ emote file "prompt.txt"
 
 ### To Be Implemented
 
-- -w --whitespace/--word|Convert text by whitespaces or whole words instead of characters
 - Tmote|Text Emotes. A json file of text emotes alongside short alias names.
 - Emoji|Emoticons. A json file (with categories) of emoji.
 - Nato. A json file with mappings from letters to nato phonetics.
