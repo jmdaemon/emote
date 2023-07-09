@@ -1,8 +1,10 @@
 use std::{fs::File, io::Write, env, path::Path};
 
-use indexmap::IndexMap;
+use indexmap::{IndexMap, set::Iter};
 use serde_json::Value;
 use phf::phf_map;
+
+use itertools::*;
 
 // Constants
 
@@ -42,6 +44,21 @@ fn write_map(file: &mut File, name: impl Into<String>, map: &phf_codegen::Map<St
     writeln!(file, ";").unwrap();
 }
 
+fn generate_resource<'a, I>(file: &mut File, name: &str, it: I)
+where
+    I: Iterator<Item = (&'a String, &'a String)>
+{
+    //let hmap: DataStore = serde_json::from_str(conts).unwrap();
+    let mut map = phf_codegen::Map::new();
+    //for (key, val) in hmap.into_iter() {
+    for (key, val) in it {
+        map.entry(key.to_owned(), &quote(val));
+        //let str = format!("\"{}\"", key.to_string());
+        //map.entry(val, &str);
+    }
+    write_map(file, name, &map);
+}
+
 fn main () {
     // Output to our src directory
     //env::set_var("OUT_DIR", "src");
@@ -71,17 +88,9 @@ fn main () {
     // Generate nato resource
     let nato_map: DataStore = serde_json::from_str(NATO_CONTS).unwrap();
 
-    let mut map = phf_codegen::Map::new();
-    for (key, val) in nato_map.iter() {
-        map.entry(key.to_owned(), &quote(val));
-    }
-    write_map(&mut file, "TO_NATO", &map);
-
-    let nato_map: DataStore = serde_json::from_str(NATO_CONTS).unwrap();
-    let mut map = phf_codegen::Map::new();
-    for (key, val) in nato_map.into_iter() {
-        let str = format!("\"{}\"", key.to_string());
-        map.entry(val, &str);
-    }
-    write_map(&mut file, "FROM_NATO", &map);
+    generate_resource(&mut file, "TO_NATO", nato_map.iter());
+    generate_resource(&mut file, "FROM_NATO", nato_map
+        .iter()
+        .map(|(key, val)| { (val, key) })
+        );
 }

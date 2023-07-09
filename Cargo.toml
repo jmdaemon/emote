@@ -24,3 +24,4 @@ serde = "1.0.167"
 serde_json = { version = "1.0.100", features = ["preserve_order"] }
 indexmap = { version = "2.0.0", features = ["serde"] }
 phf_codegen = "0.11.2"
+itertools = "0.11.0"
