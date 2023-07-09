@@ -54,6 +54,9 @@ pub enum CliCommands {
 
         #[arg(value_name = "TEXT")]
         text: String,
+
+        #[arg(short, long, default_value_t = false, help = "Convert whole words")]
+        word: bool,
     }
 }
 

@@ -101,13 +101,14 @@ fn main() {
                 }
                 Some(CliCommands::Nato {  }) => {}
                 Some(CliCommands::Morse {  }) => {}
-                Some(CliCommands::Custom { fpath, text }) => {
+                Some(CliCommands::Custom { fpath, text, word}) => {
                     let hmap = parse_json_file(&fpath);
                     let mut output: String = String::with_capacity(text.len());
                     
-                    for char in text.chars() {
-                        let string_char = String::from(char);
-                        if let Some(val) = hmap.get(&string_char) {
+                    // Separate by whole words
+                    let text_array = if word { text.split(" ") } else { text.split("") };
+                    for character in text_array {
+                        if let Some(val) = hmap.get(character) {
                             output += val.as_str().unwrap();
                         }
                     }
