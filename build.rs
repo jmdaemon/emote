@@ -4,6 +4,8 @@ use indexmap::IndexMap;
 use serde_json::Value;
 use phf::phf_map;
 
+// Constants
+
 // TODO: Figure out how to const_format the json data path
 const RESOURCES_CONTS: phf::Map<&'static str, &'static str> = phf_map! {
     "BOLD_ITALIC_SANS" => include_str!("resources/bold-italic-sans.json"),
@@ -24,6 +26,10 @@ const NATO_CONTS: &str = include_str!("resources/nato.json");
 
 const RESOURCE_FILE_NAME: &str = "resources.rs";
 
+// Types
+type DataStore = IndexMap<String, String>;
+
+// Functions
 fn quote(s: impl Into<String>) -> String {
     format!("\"{}\"", s.into())
 }
@@ -63,7 +69,7 @@ fn main () {
     writeln!(file).unwrap();
 
     // Generate nato resource
-    let nato_map: IndexMap<String, String> = serde_json::from_str(NATO_CONTS).unwrap();
+    let nato_map: DataStore = serde_json::from_str(NATO_CONTS).unwrap();
 
     let mut map = phf_codegen::Map::new();
     for (key, val) in nato_map.iter() {
@@ -71,7 +77,7 @@ fn main () {
     }
     write_map(&mut file, "TO_NATO", &map);
 
-    let nato_map: IndexMap<String, String> = serde_json::from_str(NATO_CONTS).unwrap();
+    let nato_map: DataStore = serde_json::from_str(NATO_CONTS).unwrap();
     let mut map = phf_codegen::Map::new();
     for (key, val) in nato_map.into_iter() {
         let str = format!("\"{}\"", key.to_string());
