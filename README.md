@@ -52,3 +52,13 @@ emote file "prompt.txt"
 
 - Implement file parsing with valid bbcode attributes.
 - Implement one window GUI for windows & linux with gtk & native_windows_gui
+
+## Features
+
+### To Be Implemented
+
+- -w --whitespace/--word|Convert text by whitespaces or whole words instead of characters
+- Tmote|Text Emotes. A json file of text emotes alongside short alias names.
+- Emoji|Emoticons. A json file (with categories) of emoji.
+- Nato. A json file with mappings from letters to nato phonetics.
+- Morse. A json file with mappings from combinations of morse to ASCII and vice versa.
