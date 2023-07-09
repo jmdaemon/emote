@@ -24,6 +24,18 @@ const NATO_CONTS: &str = include_str!("resources/nato.json");
 
 const RESOURCE_FILE_NAME: &str = "resources.rs";
 
+fn quote(s: impl Into<String>) -> String {
+    format!("\"{}\"", s.into())
+}
+
+fn write_map(file: &mut File, name: impl Into<String>, map: &phf_codegen::Map<String>) {
+    write!(file,
+        "static {}: phf::Map<&'static str, &'static str> = {}",
+        name.into(),
+        map.build()).unwrap();
+    writeln!(file, ";").unwrap();
+}
+
 fn main () {
     // Output to our src directory
     //env::set_var("OUT_DIR", "src");
@@ -46,52 +58,24 @@ fn main () {
             let str = val.to_string();
             map.entry(key, &str);
         }
-        write!(file,
-            "static {}: phf::Map<&'static str, &'static str> = {}",
-            name,
-            map.build()).unwrap();
-        writeln!(file, ";").unwrap();
+        write_map(&mut file, name.to_owned(), &map);
     }
     writeln!(file).unwrap();
 
     // Generate nato resource
-    //let nato_map: IndexMap<String, String> = serde_json::from_str(NATO_CONTS).unwrap();
-    let nato_map: IndexMap<String, Value> = serde_json::from_str(NATO_CONTS).unwrap();
+    let nato_map: IndexMap<String, String> = serde_json::from_str(NATO_CONTS).unwrap();
 
     let mut map = phf_codegen::Map::new();
     for (key, val) in nato_map.iter() {
-        let str = val.to_string();
-        map.entry(key, &str);
+        map.entry(key.to_owned(), &quote(val));
     }
-    write!(file,
-        "static {}: phf::Map<&'static str, &'static str> = {}",
-        "TO_NATO",
-        map.build()).unwrap();
-    writeln!(file, ";").unwrap();
+    write_map(&mut file, "TO_NATO", &map);
 
     let nato_map: IndexMap<String, String> = serde_json::from_str(NATO_CONTS).unwrap();
     let mut map = phf_codegen::Map::new();
     for (key, val) in nato_map.into_iter() {
-        //let str = key.to_string().make_ascii_uppercase;
         let str = format!("\"{}\"", key.to_string());
         map.entry(val, &str);
-
-        //let key_str = val.to_string();
-        //map.entry(&key_str, key.as_str());
-
-        //let key_str = val.as_str().unwrap();
-        //let val_str = key.to_owned();
-        //map.entry(key_str, &val_str);
-
-        //let val = val.as_str().unwrap();
-        //map.entry(val, key.as_str());
-        //map.entry(val.to_string(), key.as_str());
-        //let str = val.to_string();
-        //map.entry(str, key);
     }
-    write!(file,
-        "static {}: phf::Map<&'static str, &'static str> = {}",
-        "FROM_NATO",
-        map.build()).unwrap();
-    writeln!(file, ";").unwrap();
+    write_map(&mut file, "FROM_NATO", &map);
 }
