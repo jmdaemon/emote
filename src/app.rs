@@ -46,7 +46,13 @@ pub enum CliCommands {
         #[arg(value_name = "TEXT")]
         text: String,
     },
-    Nato {},
+    Nato {
+        #[arg(short, long, default_value_t = false, help = "Translate from Nato Phoenetic Alphabet")]
+        from: bool,
+
+        #[arg(value_name = "TEXT")]
+        text: String,
+    },
     Morse {},
     Custom {
         #[arg(short, long, value_name = "FILEPATH", help="Filepath of the character map")]

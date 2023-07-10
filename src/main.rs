@@ -99,7 +99,32 @@ fn main() {
                     let output = textform(textform_type, text);
                     show_output(cli.clip, &output);
                 }
-                Some(CliCommands::Nato {  }) => {}
+                Some(CliCommands::Nato { text, from }) => {
+                    
+                    let text_array = if from { text.split(" ") } else { text.split("") };
+                    if !from {
+                        // From ASCII -> NATO
+                        let store = &TO_NATO;
+                        let mut output = String::with_capacity(text.len());
+                        for character in text_array {
+                            if let Some(val) = store.get(character) {
+                                output += val;
+                                output += " "
+                            }
+                        }
+                        println!("{}", output);
+                    } else {
+                        // From NATO -> ASCII
+                        let store = &FROM_NATO;
+                        let mut output = String::with_capacity(text.len());
+                        for character in text_array {
+                            if let Some(val) = store.get(character) {
+                                output += val;
+                            }
+                        }
+                        println!("{}", output);
+                    }
+                }
                 Some(CliCommands::Morse {  }) => {}
                 Some(CliCommands::Custom { fpath, text, word}) => {
                     let hmap = parse_json_file(&fpath);
