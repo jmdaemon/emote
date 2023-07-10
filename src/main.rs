@@ -20,6 +20,8 @@ type CustomStore = IndexMap<String, Value>;
 
 // Constants
 const NO_MAP: DataStore = phf_map!{};
+const BY_CHAR: &str = "";
+const BY_WORD: &str = " ";
 
 fn get_data_store(textform_type: TextformType) -> &'static DataStore {
     match textform_type {
@@ -47,14 +49,14 @@ fn copy_to_clipboard(conts: &str) {
         .set_contents(conts.into()).unwrap();
 }
 
-fn textform(textform_type: TextformType, text: String) -> String {
-    let hmap = get_data_store(textform_type);
-    let mut output: String = String::with_capacity(text.len());
-    
-    for char in text.chars() {
-        let string_char = String::from(char);
-        if let Some(val) = hmap.get(&string_char).cloned() {
+fn convert(hmap: &DataStore, text: String, split: &str, delim: &str) -> String {
+    let mut output = String::with_capacity(text.len());
+    let text_array = text.split(split);
+
+    for character in text_array {
+        if let Some(val) = hmap.get(character) {
             output += val;
+            output += delim;
         }
     }
     output
@@ -96,33 +98,26 @@ fn main() {
                 Some(CliCommands::Tmote {  }) => {}
                 Some(CliCommands::Emoji {  }) => {}
                 Some(CliCommands::Textform { textform_type, text } ) => {
-                    let output = textform(textform_type, text);
+                    let hmap = get_data_store(textform_type);
+                    let output = convert(hmap, text, BY_CHAR, "");
                     show_output(cli.clip, &output);
                 }
                 Some(CliCommands::Nato { text, from }) => {
                     
-                    let text_array = if from { text.split(" ") } else { text.split("") };
+                    //let text_array = if from { text.split(" ") } else { text.split("") };
                     if !from {
                         // From ASCII -> NATO
-                        let store = &TO_NATO;
-                        let mut output = String::with_capacity(text.len());
-                        for character in text_array {
-                            if let Some(val) = store.get(character) {
-                                output += val;
-                                output += " "
-                            }
-                        }
-                        println!("{}", output);
+                        let hmap = &TO_NATO;
+                        let output = convert(hmap, text, BY_CHAR, " ");
+                        let output = output.trim().to_string();
+                        show_output(cli.clip, &output);
+
                     } else {
                         // From NATO -> ASCII
-                        let store = &FROM_NATO;
-                        let mut output = String::with_capacity(text.len());
-                        for character in text_array {
-                            if let Some(val) = store.get(character) {
-                                output += val;
-                            }
-                        }
-                        println!("{}", output);
+                        let hmap = &FROM_NATO;
+                        let output = convert(hmap, text, BY_WORD, " ");
+                        let output = output.trim().to_string();
+                        show_output(cli.clip, &output);
                     }
                 }
                 Some(CliCommands::Morse {  }) => {}
