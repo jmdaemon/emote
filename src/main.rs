@@ -49,14 +49,14 @@ fn copy_to_clipboard(conts: &str) {
         .set_contents(conts.into()).unwrap();
 }
 
-fn convert(hmap: &DataStore, text: String, split: &str, delim: &str) -> String {
+fn convert(hmap: &DataStore, text: String, split: &str, spacer: &str) -> String {
     let mut output = String::with_capacity(text.len());
     let text_array = text.split(split);
 
     for character in text_array {
         if let Some(val) = hmap.get(character) {
             output += val;
-            output += delim;
+            output += spacer;
         }
     }
     output
@@ -104,21 +104,14 @@ fn main() {
                 }
                 Some(CliCommands::Nato { text, from }) => {
                     
-                    //let text_array = if from { text.split(" ") } else { text.split("") };
-                    if !from {
-                        // From ASCII -> NATO
-                        let hmap = &TO_NATO;
-                        let output = convert(hmap, text, BY_CHAR, " ");
-                        let output = output.trim().to_string();
-                        show_output(cli.clip, &output);
-
+                    let (hmap, split, spacer) = if !from {
+                        (&TO_NATO, BY_CHAR, " ")  // From ASCII -> NATO
                     } else {
-                        // From NATO -> ASCII
-                        let hmap = &FROM_NATO;
-                        let output = convert(hmap, text, BY_WORD, " ");
-                        let output = output.trim().to_string();
-                        show_output(cli.clip, &output);
-                    }
+                        (&FROM_NATO, BY_WORD, " ")// From NATO -> ASCII
+                    };
+                    let output = convert(hmap, text, split, spacer);
+                    let output = output.trim().to_string();
+                    show_output(cli.clip, &output);
                 }
                 Some(CliCommands::Morse {  }) => {}
                 Some(CliCommands::Custom { fpath, text, word}) => {
