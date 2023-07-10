@@ -57,31 +57,17 @@ where
     write_map(file, name, &map);
 }
 
-pub trait HashMapReverseIterExt<K,V> {
-    //type Item = (V, K);
-    //type ReverseIterator: Iterator<Item = (V, K)>;
-    //type Item;
-    //type ReverseIterator: Iterator<Item = Self::Item>;
-    //fn rev_iter(self) -> Self;
-    //fn rev_iter<'a>(self) -> Iter<'a, V, K>;
-    //fn rev_iter<'a>(self) -> Iter<'a, V, K>;
-    //fn rev_iter(self) -> IntoIter<V, K>;
-    fn rev_iter(self) -> Self;
+pub trait HashMapReverseMapExt<K,V> {
+    fn rev_map(self) -> Self;
 }
 
-//impl<S: Hasher + BuildHasher + Default> HashMapReverseIterExt<String, String> for IndexMap<String, String, S> {
-impl HashMapReverseIterExt<String, String> for IndexMap<String, String> {
-    //fn rev_iter(self) -> IntoIter<String, String> {
-    fn rev_iter(self) -> Self {
-        self
-            .into_iter()
-            .map(
-                |(key, val)|
-                (val, key)
-                )
+impl HashMapReverseMapExt<String, String> for IndexMap<String, String> {
+    fn rev_map(self) -> Self {
+        self.into_iter()
+            .map( |(key, val)| (val, key))
             .collect()
-        }
     }
+}
 
 fn main () {
     // Output to our src directory
@@ -111,12 +97,6 @@ fn main () {
 
     // Generate nato resource
     let nato_map: DataStore = serde_json::from_str(NATO_CONTS).unwrap();
-
     generate_resource(&mut file, "TO_NATO", nato_map.iter());
-    generate_resource(&mut file, "FROM_NATO", nato_map.rev_iter().iter());
-
-    //generate_resource(&mut file, "FROM_NATO", nato_map
-        //.iter()
-        //.map(|(key, val)| { (val, key) })
-        //);
+    generate_resource(&mut file, "FROM_NATO", nato_map.rev_map().iter());
 }
