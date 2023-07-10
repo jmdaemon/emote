@@ -1,12 +1,7 @@
-#![feature(type_alias_impl_trait)]
+use std::{fs::File, io::Write, env, path::Path};
 
-use std::{fs::File, io::Write, env, path::Path, hash::{Hasher, BuildHasher}};
-
-use indexmap::{IndexMap, map::{Iter, IntoIter}};
-use serde_json::Value;
+use indexmap::IndexMap;
 use phf::phf_map;
-
-use itertools::*;
 
 // Constants
 
@@ -86,7 +81,6 @@ fn main () {
         let hmap: DataStore = serde_json::from_str(conts).unwrap();
         generate_resource(&mut file, name, hmap.iter());
     }
-    writeln!(file).unwrap();
 
     // Generate nato resource
     let nato_map: DataStore = serde_json::from_str(NATO_CONTS).unwrap();
