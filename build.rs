@@ -83,15 +83,8 @@ fn main () {
 
     // Generate textform resources
     for (name, conts) in RESOURCES_CONTS.into_iter() {
-        let hmap: IndexMap<String, Value> = serde_json::from_str(conts).unwrap();
-
-        // Create phfmap
-        let mut map = phf_codegen::Map::new();
-        for (key, val) in hmap.into_iter() {
-            let str = val.to_string();
-            map.entry(key, &str);
-        }
-        write_map(&mut file, name.to_owned(), &map);
+        let hmap: DataStore = serde_json::from_str(conts).unwrap();
+        generate_resource(&mut file, name, hmap.iter());
     }
     writeln!(file).unwrap();
 
