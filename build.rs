@@ -50,23 +50,12 @@ fn generate_resource<'a, I>(file: &mut File, name: &str, it: I)
 where
     I: Iterator<Item = (&'a String, &'a String)>
 {
-    //let hmap: DataStore = serde_json::from_str(conts).unwrap();
     let mut map = phf_codegen::Map::new();
-    //for (key, val) in hmap.into_iter() {
     for (key, val) in it {
         map.entry(key.to_owned(), &quote(val));
-        //let str = format!("\"{}\"", key.to_string());
-        //map.entry(val, &str);
     }
     write_map(file, name, &map);
 }
-
-//trait IdAssigner<K> {
-    //fn assign_id(mut self, key: K) -> (usize, bool);
-//}
-
-//impl<K> IdAssigner<K> for HashMap<K, usize>
-    //where K: Eq + Hash,
 
 pub trait HashMapReverseIterExt<K,V> {
     //type Item = (V, K);
@@ -80,11 +69,6 @@ pub trait HashMapReverseIterExt<K,V> {
     fn rev_iter(self) -> Self;
 }
 
-//impl<'a, K, V> HashMapReverseIterExt<K, V> for IndexMap<K, V>
-//where 
-    //K: 'static,
-    //V: 'static
-//{
 //impl<S: Hasher + BuildHasher + Default> HashMapReverseIterExt<String, String> for IndexMap<String, String, S> {
 impl HashMapReverseIterExt<String, String> for IndexMap<String, String> {
     //fn rev_iter(self) -> IntoIter<String, String> {
@@ -98,60 +82,6 @@ impl HashMapReverseIterExt<String, String> for IndexMap<String, String> {
             .collect()
         }
     }
-/*
-impl<K, V> HashMapReverseIterExt<K, V> for IndexMap<K, V> {
-    //type Item = (&'a V, &'a K);
-    //type ReverseIterator = indexmap::map::Iter<&'a Self::Item>;
-    //fn rev_iter(self) -> IndexMap<V, K> {
-    //fn rev_iter<'a> (self) -> Self::ReverseIterator
-    fn rev_iter<'a>(self) -> Iter<'a, V, K>
-        //where K: 'static,
-              //V: 'static
-    {
-        self
-            .into_iter()
-            .map(
-                |(key, val)|
-                (val, key)
-                )
-            .into_iter()
-            .collect()
-        //self.into_iter()
-        //self.iter().map(|(key, val)| {(val, key)}).collect()
-
-        //return self.iter() .map(|(key, val)| (val.to_owned(), key.to_owned()));
-
-        //let iter = self.iter()
-            //.map(|(key, val)| (val.to_owned(), key.to_owned()))
-            //.collect();
-        //return 
-    }
-}
-
-*/
-
-
-//pub trait HashMapReverseIterExt<A = Self> {
-    //fn rev_iter<I>(iter: I) -> Self
-        //where
-            //I: Iterator<Item = A>;
-//}
-
-
-//trait HashMapReverseIterExt<A = Self> {
-    //fn rev_iter<I>(iter: I) -> Self
-        //where
-            //I: Iterator<Item = A>;
-//}
-
-//impl<I: Iterator> HashMapReverseIterExt for  {
-    //fn rev_iter<I>(iter: I) -> Self
-            //where
-                //I: Iterator<Item = Self> {
-                    //return iter.map(|(key, val)| (val, key))
-        
-    //}
-//}
 
 fn main () {
     // Output to our src directory
