@@ -8,6 +8,7 @@ use tracing_subscriber::FmtSubscriber;
 use emote::app::{CLI, Modes, CliCommands, TextformType};
 use clap::Parser;
 use clipboard::ClipboardProvider;
+use clipboard_ext::x11_fork::ClipboardContext;
 use serde_json::Value;
 
 // Include resources
@@ -45,7 +46,7 @@ fn get_data_store(textform_type: TextformType) -> &'static DataStore {
 // NOTE: When we copy the contents to our clipboard, we need to fork our process and keep it running
 // in the background so we can actually paste the contents of the clipboard
 fn copy_to_clipboard(conts: &str) {
-    clipboard_ext::x11_fork::ClipboardContext::new().unwrap()
+    ClipboardContext::new().unwrap()
         .set_contents(conts.into()).unwrap();
 }
 
