@@ -1,4 +1,4 @@
-use std::{fs, path::Path, ops::Deref, borrow::Borrow, hash::Hash, str::FromStr};
+use std::{fs, path::Path, ops::Deref};
 
 use indexmap::IndexMap;
 use phf::{phf_map, PhfHash};
@@ -50,32 +50,21 @@ fn copy_to_clipboard(conts: &str) {
         .set_contents(conts.into()).unwrap();
 }
 
-// Get value from hashmap
-pub trait MapType<'a, K, V> {
-    fn get(&'a self, k: &str) -> Option<V>;
+// The lifetime 'a represents the lifetime of the hmap
+pub trait DataMap<'a, K> {
+    fn get_val(&'a self, key: K) -> Option<&'a str>;
 }
 
-impl<'a> MapType<'a, &'a str, &'a str> for DataStore {
-    fn get(&'a self, k: &str) -> Option<&'a str> {
-        if let Some(v) = self.get(k) { Some(v) } else { None}
-    }
+impl<'a> DataMap<'a, &str> for DataStore {
+    fn get_val(&'a self, key: &str) -> Option<&'a str> { self.get(key).map(ToOwned::to_owned) }
 }
 
-impl<'a> MapType<'a, &'a str, &'a str> for CustomStore<'a> {
-    fn get(&'a self, k: &str) -> Option<&'a str> {
-        if let Some(v) = self.get(k) { v.as_str() } else { None }
-    }
+impl<'a> DataMap<'a, &str> for CustomStore<'a> {
+    fn get_val(&'a self, key: &str) -> Option<&'a str> { self.get(key).and_then(|v| v.as_str()) }
 }
 
-// Interface to get value
-pub trait DataMap<'a, K>: MapType<'a, K,&'a str> {
-    fn get_val(&'a self, key: &str) -> Option<&'a str> { self.get(key) }
-}
-
-impl<'a> DataMap<'a, &'a str> for DataStore { }
-impl<'a> DataMap<'a, &'a str> for CustomStore<'a> { }
-
-fn convert<'a>(store: &'a impl DataMap<'a, &'a str>, text: &'a str, split: &str, spacer: &str) -> String {
+fn convert<'a>(store: &'a impl DataMap<'a, &'a str>, text: &'a str, split: &str, spacer: &str) -> String
+{
     let mut output = String::with_capacity(text.len());
     let text_array = text.split(split);
 
