@@ -24,7 +24,7 @@ const NO_MAP: DataStore = phf_map!{};
 const BY_CHAR: &str = "";
 const BY_WORD: &str = " ";
 
-fn get_data_store(textform_type: TextformType) -> &'static DataStore {
+fn get_data_store<'a>(textform_type: TextformType) -> &'a DataStore {
     match textform_type {
         TextformType::Zalgo => &NO_MAP,
         TextformType::Strikethrough => &NO_MAP,
