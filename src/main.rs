@@ -50,83 +50,30 @@ fn copy_to_clipboard(conts: &str) {
         .set_contents(conts.into()).unwrap();
 }
 
-pub trait MapType<'a, K, V>{
+// Get value from hashmap
+pub trait MapType<'a, K, V> {
     fn get(&'a self, k: &str) -> Option<V>;
 }
 
 impl<'a> MapType<'a, &'a str, &'a str> for DataStore {
     fn get(&'a self, k: &str) -> Option<&'a str> {
-        if let Some(v) = self.get(k) {
-            return Some(v)
-        }
-        None
+        if let Some(v) = self.get(k) { Some(v) } else { None}
     }
 }
 
 impl<'a> MapType<'a, &'a str, &'a str> for CustomStore<'a> {
     fn get(&'a self, k: &str) -> Option<&'a str> {
-        if let Some(value) = self.get(k) {
-            return value.as_str()
-        }
-        None
+        if let Some(v) = self.get(k) { v.as_str() } else { None }
     }
 }
 
-//pub trait DataMap<'a>: MapType<&'a str,&'a str> {
+// Interface to get value
 pub trait DataMap<'a, K>: MapType<'a, K,&'a str> {
-    //fn get_val(&'a self, key: K) -> Option<&'a str>;
-    fn get_val(&'a self, key: &str) -> Option<&'a str> {
-        if let Some(val) = self.get(key) {
-            Some(val)
-        } else {
-            Some("")
-        }
-    }
-}
-impl<'a> DataMap<'a, &'a str> for DataStore {
-    //fn get_val(&'a self, key: &str) -> Option<&'a str> {
-        //DataStore::get_val(key)
-        ////self.get_val(key)
-    //}
+    fn get_val(&'a self, key: &str) -> Option<&'a str> { self.get(key) }
 }
 
-impl<'a> DataMap<'a, &'a str> for CustomStore<'a> {
-    //fn get_val(&'a self, key: &str) -> Option<&'a str> {
-        //self.get_val(key)
-    //}
-}
-
-//impl<'a> DataMap<'a, &str> {
-
-//impl<'a> DataMap<'a, &str> {
-    //fn get_val(&'a self, key: &str) -> Option<&'a str> {
-        //if let Some(val) = self.get(key) {
-            //Some(val)
-        //} else {
-            //Some("")
-        //}
-    //}
-//}
-
-//impl<'a> DataMap<'a, &str> for DataStore {
-    //fn get_val(&'a self, key: &str) -> Option<&'a str> {
-        //if let Some(val) = self.get(key) {
-            //Some(val)
-        //} else {
-            //Some("")
-        //}
-    //}
-//}
-
-//impl<'a> DataMap<'a, &str> for CustomStore<'a> {
-    //fn get_val(&'a self, key: &str) -> Option<&'a str> {
-        //if let Some(val) = self.get(key) {
-            //val.as_str()
-        //} else {
-            //Some("")
-        //}
-    //}
-//}
+impl<'a> DataMap<'a, &'a str> for DataStore { }
+impl<'a> DataMap<'a, &'a str> for CustomStore<'a> { }
 
 fn convert<'a>(store: &'a impl DataMap<'a, &'a str>, text: &'a str, split: &str, spacer: &str) -> String {
     let mut output = String::with_capacity(text.len());
