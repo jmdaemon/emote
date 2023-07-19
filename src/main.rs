@@ -1,4 +1,4 @@
-use std::{fs, path::Path};
+use std::fs;
 
 use indexmap::IndexMap;
 use phf::phf_map;
@@ -8,6 +8,7 @@ use tracing_subscriber::FmtSubscriber;
 use emote::app::{CLI, Modes, CliCommands, TextformType};
 use clap::Parser;
 use clipboard::ClipboardProvider;
+use clipboard_ext::x11_fork::ClipboardContext;
 use serde_json::Value;
 
 // Include resources
@@ -16,12 +17,14 @@ include!(concat!(env!("OUT_DIR"), "/resources.rs"));
 
 // Types
 type DataStore = phf::Map<&'static str, &'static str>;
-type CustomStore = IndexMap<String, Value>;
+type CustomStore<'a> = IndexMap<&'a str, Value>;
 
 // Constants
 const NO_MAP: DataStore = phf_map!{};
+const BY_CHAR: &str = "";
+const BY_WORD: &str = " ";
 
-fn get_data_store(textform_type: TextformType) -> &'static DataStore {
+fn get_data_store<'a>(textform_type: TextformType) -> &'a DataStore {
     match textform_type {
         TextformType::Zalgo => &NO_MAP,
         TextformType::Strikethrough => &NO_MAP,
@@ -43,28 +46,39 @@ fn get_data_store(textform_type: TextformType) -> &'static DataStore {
 // NOTE: When we copy the contents to our clipboard, we need to fork our process and keep it running
 // in the background so we can actually paste the contents of the clipboard
 fn copy_to_clipboard(conts: &str) {
-    clipboard_ext::x11_fork::ClipboardContext::new().unwrap()
+    ClipboardContext::new().unwrap()
         .set_contents(conts.into()).unwrap();
 }
 
-fn textform(textform_type: TextformType, text: String) -> String {
-    let hmap = get_data_store(textform_type);
-    let mut output: String = String::with_capacity(text.len());
-    
-    for char in text.chars() {
-        let string_char = String::from(char);
-        if let Some(val) = hmap.get(&string_char).cloned() {
+// The lifetime 'a represents the lifetime of the hmap
+pub trait DataMap<'a, K> {
+    fn get_val(&'a self, key: K) -> Option<&'a str>;
+}
+
+impl<'a> DataMap<'a, &str> for DataStore {
+    fn get_val(&'a self, key: &str) -> Option<&'a str> { self.get(key).map(ToOwned::to_owned) }
+}
+
+impl<'a> DataMap<'a, &str> for CustomStore<'a> {
+    fn get_val(&'a self, key: &str) -> Option<&'a str> { self.get(key).and_then(|v| v.as_str()) }
+}
+
+fn convert<'a>(store: &'a impl DataMap<'a, &'a str>, text: &'a str, split: &str, spacer: &str) -> String {
+    let mut output = String::with_capacity(text.len());
+    let text_array = text.split(split);
+
+    for character in text_array {
+        if let Some(val) = store.get_val(character) {
             output += val;
+            output += spacer;
         }
     }
     output
 }
 
 /// Parse a custom json file at runtime
-fn parse_json_file(fpath: &Path) -> CustomStore {
-    let conts = fs::read_to_string(fpath)
-        .expect("Error: File could not be found");
-    let hmap: CustomStore = serde_json::from_str(&conts)
+fn parse_json_file(conts: &str) -> CustomStore {
+    let hmap: CustomStore = serde_json::from_str(conts)
         .expect("Error: Could not parse json file");
     hmap
 }
@@ -96,22 +110,29 @@ fn main() {
                 Some(CliCommands::Tmote {  }) => {}
                 Some(CliCommands::Emoji {  }) => {}
                 Some(CliCommands::Textform { textform_type, text } ) => {
-                    let output = textform(textform_type, text);
+                    let hmap = get_data_store(textform_type);
+                    let output = convert(hmap, &text, BY_CHAR, "");
                     show_output(cli.clip, &output);
                 }
-                Some(CliCommands::Nato {  }) => {}
+                Some(CliCommands::Nato { text, from }) => {
+                    
+                    let (hmap, split, spacer) = if !from {
+                        (&TO_NATO, BY_CHAR, " ")  // From ASCII -> NATO
+                    } else {
+                        (&FROM_NATO, BY_WORD, " ")// From NATO -> ASCII
+                    };
+                    let output = convert(hmap, &text, split, spacer);
+                    let output = output.trim().to_string();
+                    show_output(cli.clip, &output);
+                }
                 Some(CliCommands::Morse {  }) => {}
                 Some(CliCommands::Custom { fpath, text, word}) => {
-                    let hmap = parse_json_file(&fpath);
-                    let mut output: String = String::with_capacity(text.len());
-                    
-                    // Separate by whole words
-                    let text_array = if word { text.split(" ") } else { text.split("") };
-                    for character in text_array {
-                        if let Some(val) = hmap.get(character) {
-                            output += val.as_str().unwrap();
-                        }
-                    }
+                    let conts = fs::read_to_string(fpath)
+                        .expect("Error: File could not be found");
+                    let hmap = parse_json_file(&conts);
+                    let split = if word { BY_WORD } else { BY_CHAR };
+                    let spacer = "";
+                    let output = convert(&hmap, &text, split, spacer);
                     show_output(cli.clip, &output);
                 }
                 _ => {}
