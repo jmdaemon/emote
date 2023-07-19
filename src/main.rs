@@ -1,7 +1,7 @@
-use std::{fs, path::Path, ops::Deref};
+use std::fs;
 
 use indexmap::IndexMap;
-use phf::{phf_map, PhfHash};
+use phf::phf_map;
 #[allow(unused_imports)]
 use tracing::{debug, error, info, span, warn, Level, subscriber};
 use tracing_subscriber::FmtSubscriber;
@@ -63,8 +63,7 @@ impl<'a> DataMap<'a, &str> for CustomStore<'a> {
     fn get_val(&'a self, key: &str) -> Option<&'a str> { self.get(key).and_then(|v| v.as_str()) }
 }
 
-fn convert<'a>(store: &'a impl DataMap<'a, &'a str>, text: &'a str, split: &str, spacer: &str) -> String
-{
+fn convert<'a>(store: &'a impl DataMap<'a, &'a str>, text: &'a str, split: &str, spacer: &str) -> String {
     let mut output = String::with_capacity(text.len());
     let text_array = text.split(split);
 
