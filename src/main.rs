@@ -1,4 +1,4 @@
-use std::{fs, path::Path, ops::Deref};
+use std::{fs, path::Path, ops::Deref, borrow::Borrow, hash::Hash, str::FromStr};
 
 use indexmap::IndexMap;
 use phf::{phf_map, PhfHash};
@@ -16,13 +16,7 @@ include!(concat!(env!("OUT_DIR"), "/resources.rs"));
 #[allow(unused)]
 
 // Types
-//type DataStore = phf::Map<&'static str, &'static str>;
-//type CustomStore = IndexMap<String, String>;
-//type CustomStore<'a> = IndexMap<String, &'a str>;
-//type DataStore<'a> = phf::Map<&'a str, &'a str>;
-//type CustomStore<'a> = IndexMap<&'a str, &'a str>;
 type DataStore = phf::Map<&'static str, &'static str>;
-//type CustomStore = IndexMap<String, Value>;
 type CustomStore<'a> = IndexMap<&'a str, Value>;
 
 // Constants
@@ -56,94 +50,89 @@ fn copy_to_clipboard(conts: &str) {
         .set_contents(conts.into()).unwrap();
 }
 
-//pub trait DataMap<K, V: Clone> {
-pub trait DataMap<'a, K> {
-    //fn get_val(&self, key: K) -> Option<V>;
-    //fn get_val(&self, key: K) -> Option<&'static str>;
-    fn get_val(&'a self, key: K) -> Option<&'a str>;
+pub trait MapType<'a, K, V>{
+    fn get(&'a self, k: &str) -> Option<V>;
 }
 
-//impl DataMap<&str, &'static str> for DataStore {
-//impl DataMap<&str> for DataStore {
-impl<'a> DataMap<'a, &str> for DataStore {
-//impl DataMap<&str, &'static str> for DataStore<'static> {
-    fn get_val(&self, key: &str) -> Option<&'a str> {
-        //Some(self.get(key).unwrap().deref())
-        if let Some(val) = self.get(key) {
-            return Some(val);
-            //return Some(val.deref());
-        } else {
-            return Some("".as_ref());
+impl<'a> MapType<'a, &'a str, &'a str> for DataStore {
+    fn get(&'a self, k: &str) -> Option<&'a str> {
+        if let Some(v) = self.get(k) {
+            return Some(v)
         }
+        None
     }
 }
 
-//impl DataMap<&str, &'static str> for IndexMap<String, String> {
-//impl DataMap<&str, &'static str> for IndexMap<&str, &'static str> {
-//impl DataMap<String, &'static str> for IndexMap<String, &'static str> {
-//impl DataMap<&str, &'static str> for IndexMap<&str, &'static str> {
-//impl DataMap<String> for CustomStore {
-impl<'a> DataMap<'a, &str> for CustomStore<'a> {
-    //fn get_val(self, key: String) -> Option<&'static str> {
-    //fn get_val(&self, key: &str) -> Option<&'static str> {
-    //fn get_val(&self, key: String) -> Option<&'static str> {
+impl<'a> MapType<'a, &'a str, &'a str> for CustomStore<'a> {
+    fn get(&'a self, k: &str) -> Option<&'a str> {
+        if let Some(value) = self.get(k) {
+            return value.as_str()
+        }
+        None
+    }
+}
+
+//pub trait DataMap<'a>: MapType<&'a str,&'a str> {
+pub trait DataMap<'a, K>: MapType<'a, K,&'a str> {
+    //fn get_val(&'a self, key: K) -> Option<&'a str>;
     fn get_val(&'a self, key: &str) -> Option<&'a str> {
-        //if let Some(val) = self.get(&key) {
-        //if let Some(val) = self.get(&key) {
         if let Some(val) = self.get(key) {
-            //return Some(val.as_ref());
-            //return Some(val.deref());
-            //return Some(val);
-            return val.as_str();
+            Some(val)
         } else {
-            return Some("".as_ref());
+            Some("")
         }
     }
 }
-
-//impl DataMap<&str, &'static str> for IndexMap<String, String> {
-/*
-impl DataMap<&str, &'static str> for IndexMap<&str, &'static str> {
-    fn get_val(self, key: &str) -> Option<&'static str> {
-        if let Some(val) = self.get(key) {
-            //return Some(val.as_ref());
-            //return Some(val.deref());
-            return Some(val);
-        } else {
-            return Some("".as_ref());
-        }
-    }
+impl<'a> DataMap<'a, &'a str> for DataStore {
+    //fn get_val(&'a self, key: &str) -> Option<&'a str> {
+        //DataStore::get_val(key)
+        ////self.get_val(key)
+    //}
 }
 
-impl DataMap<String, &'static str> for IndexMap<String, &'static str> {
-    fn get_val(self, key: String) -> Option<&'static str> {
-        if let Some(val) = self.get(&key) {
-            //return Some(val.as_ref());
-            //return Some(val.deref());
-            return Some(val);
-        } else {
-            return Some("".as_ref());
-        }
-    }
+impl<'a> DataMap<'a, &'a str> for CustomStore<'a> {
+    //fn get_val(&'a self, key: &str) -> Option<&'a str> {
+        //self.get_val(key)
+    //}
 }
-*/
 
-//fn convert(hmap: &DataStore, text: String, split: &str, spacer: &str) -> String {
-//fn convert<'a, S>(store: &S, text: &'a str, split: &str, spacer: &str) -> String
-//where S: DataMap<&'a str, &'a str>
+//impl<'a> DataMap<'a, &str> {
 
-//fn convert<'a, S, K>(store: &S, text: &'a str, split: &str, spacer: &str) -> String
-//where S: DataMap<K>
+//impl<'a> DataMap<'a, &str> {
+    //fn get_val(&'a self, key: &str) -> Option<&'a str> {
+        //if let Some(val) = self.get(key) {
+            //Some(val)
+        //} else {
+            //Some("")
+        //}
+    //}
+//}
 
-//fn convert<'a, S>(store: &S, text: &'a str, split: &str, spacer: &str) -> String
-//where S: DataMap<_>
-fn convert<'a>(store: &'a impl DataMap<'a, &'a str>, text: &'a str, split: &str, spacer: &str) -> String
-{
+//impl<'a> DataMap<'a, &str> for DataStore {
+    //fn get_val(&'a self, key: &str) -> Option<&'a str> {
+        //if let Some(val) = self.get(key) {
+            //Some(val)
+        //} else {
+            //Some("")
+        //}
+    //}
+//}
+
+//impl<'a> DataMap<'a, &str> for CustomStore<'a> {
+    //fn get_val(&'a self, key: &str) -> Option<&'a str> {
+        //if let Some(val) = self.get(key) {
+            //val.as_str()
+        //} else {
+            //Some("")
+        //}
+    //}
+//}
+
+fn convert<'a>(store: &'a impl DataMap<'a, &'a str>, text: &'a str, split: &str, spacer: &str) -> String {
     let mut output = String::with_capacity(text.len());
     let text_array = text.split(split);
 
     for character in text_array {
-        //if let Some(val) = store.get_val(character) {
         if let Some(val) = store.get_val(character) {
             output += val;
             output += spacer;
@@ -154,7 +143,6 @@ fn convert<'a>(store: &'a impl DataMap<'a, &'a str>, text: &'a str, split: &str,
 
 /// Parse a custom json file at runtime
 fn parse_json_file(conts: &str) -> CustomStore {
-    //let hmap: CustomStore = serde_json::from_str(&conts)
     let hmap: CustomStore = serde_json::from_str(conts)
         .expect("Error: Could not parse json file");
     hmap
@@ -211,19 +199,6 @@ fn main() {
                     let spacer = "";
                     let output = convert(&hmap, &text, split, spacer);
                     show_output(cli.clip, &output);
-
-                    //let output = convert(&hmap as DataStore, text, BY_CHAR, "");
-
-                    //let mut output: String = String::with_capacity(text.len());
-                    
-                    //// Separate by whole words
-                    //let text_array = if word { text.split(" ") } else { text.split("") };
-                    //for character in text_array {
-                        //if let Some(val) = hmap.get(character) {
-                            //output += val;
-                        //}
-                    //}
-                    //show_output(cli.clip, &output);
                 }
                 _ => {}
             }
