@@ -1,4 +1,2 @@
 pub mod app;
-
-// Include resources
-include!(concat!(env!("OUT_DIR"), "/resources.rs"));
+pub mod prelude;

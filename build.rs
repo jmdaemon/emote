@@ -1,3 +1,7 @@
+#[allow(unused)]
+#[allow(unused_imports)]
+#[allow(dead_code)]
+
 use std::{fs::File, io::Write, env, path::Path};
 
 use indexmap::IndexMap;
@@ -35,7 +39,7 @@ fn quote(s: impl Into<String>) -> String {
 
 fn write_map(file: &mut File, name: impl Into<String>, map: &phf_codegen::Map<String>) {
     write!(file,
-        "static {}: phf::Map<&'static str, &'static str> = {}",
+        "pub static {}: phf::Map<&'static str, &'static str> = {}",
         name.into(),
         map.build()).unwrap();
     writeln!(file, ";").unwrap();

@@ -1,4 +1,10 @@
+pub mod prelude;
+
 use std::fs;
+
+// Include all the defined resources
+#[allow(unused_imports)]
+use crate::prelude::*;
 
 use indexmap::IndexMap;
 use phf::phf_map;
@@ -10,10 +16,6 @@ use clap::Parser;
 use clipboard::ClipboardProvider;
 use clipboard_ext::x11_fork::ClipboardContext;
 use serde_json::Value;
-
-// Include resources
-include!(concat!(env!("OUT_DIR"), "/resources.rs"));
-#[allow(unused)]
 
 // Types
 type DataStore = phf::Map<&'static str, &'static str>;
